@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/html_utils.dart';
-import '../../../../l10n/app_localizations.dart';
 
 class HtmlEditorField extends StatefulWidget {
   const HtmlEditorField({
@@ -70,8 +70,6 @@ class _HtmlEditorFieldState extends State<HtmlEditorField>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return Column(
       children: [
         SingleChildScrollView(
@@ -90,14 +88,14 @@ class _HtmlEditorFieldState extends State<HtmlEditorField>
               _ToolbarButton(label: 'J', onPressed: () => _wrapSelection('<p style="text-align:justify">', '</p>')),
               _ToolbarButton(label: 'Red', onPressed: () => _wrapSelection('<span style="color:red">', '</span>')),
               _ToolbarButton(label: 'BR', onPressed: () => _insert('<br/>')),
-              _ToolbarButton(label: l10n.clear, onPressed: _clearFormatting),
+              _ToolbarButton(label: AppStrings.clear, onPressed: _clearFormatting),
             ],
           ),
         ),
         const SizedBox(height: 12),
         TabBar(
           controller: _tabController,
-          tabs: [Tab(text: l10n.htmlSource), Tab(text: l10n.previewText)],
+          tabs: const [Tab(text: AppStrings.htmlSource), Tab(text: AppStrings.previewText)],
         ),
         const SizedBox(height: 12),
         SizedBox(
@@ -110,8 +108,8 @@ class _HtmlEditorFieldState extends State<HtmlEditorField>
                 maxLines: null,
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
-                  hintText: l10n.sourceModeHint,
+                decoration: const InputDecoration(
+                  hintText: AppStrings.sourceModeHint,
                   alignLabelWithHint: true,
                 ),
               ),
