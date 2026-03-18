@@ -118,7 +118,7 @@ class _HtmlEditorFieldState extends State<HtmlEditorField>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 child: SingleChildScrollView(
                   child: Html(

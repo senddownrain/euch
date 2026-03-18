@@ -250,9 +250,8 @@ enum _OfflineSyncStatus {
 }
 
 class _ItemsSearchDelegate extends SearchDelegate<void> {
-  _ItemsSearchDelegate(this.ref, this.hint);
+  _ItemsSearchDelegate(this.hint);
 
-  final WidgetRef ref;
   final String hint;
 
   @override
@@ -265,7 +264,7 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
         IconButton(
           onPressed: () {
             query = '';
-            ref.read(itemFiltersProvider.notifier).setSearchQuery('');
+            showSuggestions(context);
           },
           icon: const Icon(Icons.clear),
         ),
@@ -276,7 +275,6 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
   Widget? buildLeading(BuildContext context) {
     return IconButton(
       onPressed: () {
-        ref.read(itemFiltersProvider.notifier).setSearchQuery('');
         close(context, null);
       },
       icon: const Icon(Icons.arrow_back),
@@ -285,28 +283,43 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
 
   @override
   Widget buildResults(BuildContext context) {
-    ref.read(itemFiltersProvider.notifier).setSearchQuery(query);
     return Consumer(
       builder: (context, ref, _) {
-        final items = ref.watch(filteredItemsProvider);
+        final items = ref.watch(allItemsProvider);
+        final selectedTags = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
+        final pinnedIds = ref.watch(settingsControllerProvider.select((value) => value.pinnedIds));
+
         return items.when(
-          data: (list) => ListView(
-            children: [
-              for (final item in list)
-                ListTile(
-                  title: Text(item.title),
-                  subtitle: Text(
-                    item.tags.join(', '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          data: (list) {
+            final normalizedQuery = query.trim().toLowerCase();
+            final filtered = list.where((item) {
+              final matchesQuery = normalizedQuery.isEmpty ||
+                  item.title.toLowerCase().contains(normalizedQuery) ||
+                  HtmlUtils.stripHtml(item.text).toLowerCase().contains(normalizedQuery);
+              final matchesTags = selectedTags.isEmpty ||
+                  selectedTags.every((tag) => item.tags.contains(tag));
+              return matchesQuery && matchesTags;
+            }).toList();
+            final sorted = ItemSorter.sort(filtered, pinnedIds);
+
+            return ListView(
+              children: [
+                for (final item in sorted)
+                  ListTile(
+                    title: Text(item.title),
+                    subtitle: Text(
+                      item.tags.join(', '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    onTap: () {
+                      close(context, null);
+                      context.push('/item/${item.id}');
+                    },
                   ),
-                  onTap: () {
-                    close(context, null);
-                    context.push('/item/${item.id}');
-                  },
-                ),
-            ],
-          ),
+              ],
+            );
+          },
           error: (_, __) => const SizedBox.shrink(),
           loading: () => const LoadingIndicator(),
         );
@@ -316,7 +329,6 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    ref.read(itemFiltersProvider.notifier).setSearchQuery(query);
     return buildResults(context);
   }
 }

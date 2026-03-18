@@ -25,7 +25,7 @@ class TextSettingsSheet extends ConsumerWidget {
             const Text(AppStrings.fontFamily),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: settings.fontFamily,
+              initialValue: settings.fontFamily,
               items: [
                 for (final font in AppFonts.available)
                   DropdownMenuItem(value: font, child: Text(font)),

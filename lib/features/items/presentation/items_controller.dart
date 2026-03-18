@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/item.dart';
-import '../../../core/utils/html_utils.dart';
 import '../../../core/utils/item_sorter.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../data/items_repository.dart';
@@ -16,10 +15,6 @@ final itemFiltersProvider = NotifierProvider<ItemFiltersController, ItemFilters>
 class ItemFiltersController extends Notifier<ItemFilters> {
   @override
   ItemFilters build() => const ItemFilters();
-
-  void setSearchQuery(String value) {
-    state = state.copyWith(searchQuery: value);
-  }
 
   void toggleTag(String tag) {
     final next = {...state.selectedTags};
@@ -44,14 +39,10 @@ final filteredItemsProvider = Provider<AsyncValue<List<Item>>>((ref) {
   final pinnedIds = ref.watch(settingsControllerProvider.select((value) => value.pinnedIds));
 
   return items.whenData((list) {
-    final query = filters.searchQuery.toLowerCase().trim();
     final filtered = list.where((item) {
-      final matchesQuery = query.isEmpty ||
-          item.title.toLowerCase().contains(query) ||
-          HtmlUtils.stripHtml(item.text).toLowerCase().contains(query);
       final matchesTags = filters.selectedTags.isEmpty ||
           filters.selectedTags.every((tag) => item.tags.contains(tag));
-      return matchesQuery && matchesTags;
+      return matchesTags;
     }).toList();
 
     return ItemSorter.sort(filtered, pinnedIds);
