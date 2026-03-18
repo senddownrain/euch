@@ -43,7 +43,6 @@ class ItemViewScreen extends ConsumerWidget {
             lineHeight: const LineHeight(1.55),
             margin: Margins.zero,
             padding: HtmlPaddings.zero,
-            wordBreak: WordBreak.breakWord,
           );
 
           return CustomScrollView(

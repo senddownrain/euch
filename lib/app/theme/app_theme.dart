@@ -22,7 +22,7 @@ class AppTheme {
         backgroundColor: base.colorScheme.surface,
         foregroundColor: base.colorScheme.onSurface,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(
