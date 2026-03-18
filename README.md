@@ -1,17 +1,43 @@
-# euch
+# Малітоўнік Эўхарыстак
 
-A new Flutter project.
+Flutter-приложение для iOS и Android с Firebase, офлайн-кэшем Firestore, Riverpod, go_router, HTML-рендерингом и административными сценариями для управления заметками/молитвами.
 
-## Getting Started
+## Что внутри
 
-This project is a starting point for a Flutter application.
+- список заметок с поиском, фильтрами и закреплением;
+- экран чтения HTML-контента с настройками шрифта;
+- административное создание, редактирование, удаление, импорт и экспорт JSON;
+- Firebase Auth (email/password) для администратора;
+- Firestore realtime + offline persistence;
+- локальные настройки через SharedPreferences;
+- локализация `be` и `ru` через ARB.
 
-A few resources to get you started if this is your first Flutter project:
+## Запуск
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+flutter pub get
+flutterfire configure
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Платформенные шаги
+
+### Android
+- убедитесь, что `android/app/google-services.json` актуален;
+- при необходимости обновите `applicationId` и повторно выполните `flutterfire configure`.
+
+### iOS
+- добавьте актуальный `GoogleService-Info.plist` через FlutterFire CLI;
+- выполните `cd ios && pod install` после `flutter pub get`, если CocoaPods не обновлялись.
+
+## Структура
+
+```text
+lib/
+  app/
+  core/
+  features/
+  l10n/
+  firebase_options.dart
+  main.dart
+```
