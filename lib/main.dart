@@ -46,6 +46,8 @@ bool get _isMobilePlatform {
 class UnsupportedPlatformApp extends StatelessWidget {
   const UnsupportedPlatformApp({super.key});
 
+  static const _logoPath = 'lib/assets/icon.png';
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -57,6 +59,8 @@ class UnsupportedPlatformApp extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
+                _AppLogo(),
+                SizedBox(height: 24),
                 Icon(Icons.phone_android, size: 56),
                 SizedBox(height: 16),
                 Text(
@@ -68,6 +72,20 @@ class UnsupportedPlatformApp extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AppLogo extends StatelessWidget {
+  const _AppLogo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      UnsupportedPlatformApp._logoPath,
+      width: 96,
+      height: 96,
+      fit: BoxFit.contain,
     );
   }
 }
