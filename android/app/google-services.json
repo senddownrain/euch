@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "841648364425",
+    "project_id": "eucharistki-songs",
+    "storage_bucket": "eucharistki-songs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841648364425:android:165382ea3ac467e12edf58",
+        "android_client_info": {
+          "package_name": "com.example.euch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdzGOSmGLHm_EpM5DfqlGOgAYi6E4YG9Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841648364425:android:33098d40b959ee1c2edf58",
+        "android_client_info": {
+          "package_name": "com.home.eucharystki"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdzGOSmGLHm_EpM5DfqlGOgAYi6E4YG9Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
