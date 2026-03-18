@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_strings.dart';
+import '../../../core/services/share_service.dart';
 import '../../../core/widgets/confirmation_dialog.dart';
 import '../../../core/widgets/snackbar_helper.dart';
-import '../../../l10n/app_localizations.dart';
 import '../../items/data/items_repository.dart';
 import '../../items/presentation/items_controller.dart';
-import '../../../core/services/share_service.dart';
 
 class AdminScreen extends ConsumerStatefulWidget {
   const AdminScreen({super.key});
@@ -20,36 +20,34 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   bool _busy = false;
 
   Future<void> _export(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
     setState(() => _busy = true);
     try {
       final file = await ref.read(itemsRepositoryProvider).exportToJson();
-      await ref.read(shareServiceProvider).shareFile(file, text: l10n.exportSuccess);
-      if (mounted) SnackbarHelper.show(context, l10n.exportSuccess);
+      await ref.read(shareServiceProvider).shareFile(file, text: AppStrings.exportSuccess);
+      if (mounted) SnackbarHelper.show(context, AppStrings.exportSuccess);
     } catch (_) {
-      if (mounted) SnackbarHelper.show(context, l10n.genericError, isError: true);
+      if (mounted) SnackbarHelper.show(context, AppStrings.genericError, isError: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _import(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
     setState(() => _busy = true);
     try {
       final parsed = await ref.read(itemsRepositoryProvider).parseImportFile();
       final confirmed = await showConfirmationDialog(
         context: context,
-        title: l10n.confirmImportTitle,
-        content: l10n.confirmImportBody(parsed.length),
-        cancelLabel: l10n.cancel,
-        confirmLabel: l10n.confirm,
+        title: AppStrings.confirm,
+        content: AppStrings.confirmImportBody(parsed.length),
+        cancelLabel: AppStrings.cancel,
+        confirmLabel: AppStrings.confirm,
       );
       if (!confirmed) return;
       final imported = await ref.read(itemsRepositoryProvider).importItems(parsed, _importMode);
-      if (mounted) SnackbarHelper.show(context, '${l10n.importSuccess}: $imported');
+      if (mounted) SnackbarHelper.show(context, '${AppStrings.importSuccess}: $imported');
     } catch (_) {
-      if (mounted) SnackbarHelper.show(context, l10n.invalidJson, isError: true);
+      if (mounted) SnackbarHelper.show(context, AppStrings.invalidJson, isError: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -57,24 +55,23 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final items = ref.watch(allItemsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.admin)),
+      appBar: AppBar(title: const Text(AppStrings.admin)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           items.when(
-            data: (list) => Text(l10n.itemsCount(list.length)),
-            error: (_, __) => Text(l10n.genericError),
-            loading: () => Text(l10n.loading),
+            data: (list) => Text(AppStrings.itemsCount(list.length)),
+            error: (_, __) => const Text(AppStrings.genericError),
+            loading: () => const Text(AppStrings.loading),
           ),
           const SizedBox(height: 20),
           SegmentedButton<ImportMode>(
             segments: [
-              ButtonSegment(value: ImportMode.addOnly, label: Text(l10n.importAddOnly)),
-              ButtonSegment(value: ImportMode.overwrite, label: Text(l10n.importOverwrite)),
+              ButtonSegment(value: ImportMode.addOnly, label: Text(AppStrings.importAddOnly)),
+              ButtonSegment(value: ImportMode.overwrite, label: Text(AppStrings.importOverwrite)),
             ],
             selected: {_importMode},
             onSelectionChanged: _busy ? null : (value) => setState(() => _importMode = value.first),
@@ -83,13 +80,13 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           FilledButton.icon(
             onPressed: _busy ? null : () => _export(context),
             icon: const Icon(Icons.ios_share_outlined),
-            label: Text(l10n.exportJson),
+            label: const Text(AppStrings.exportJson),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: _busy ? null : () => _import(context),
             icon: const Icon(Icons.upload_file_outlined),
-            label: Text(l10n.importJson),
+            label: const Text(AppStrings.importJson),
           ),
           if (_busy) ...[
             const SizedBox(height: 20),

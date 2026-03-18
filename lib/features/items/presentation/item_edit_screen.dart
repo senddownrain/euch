@@ -3,11 +3,11 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_strings.dart';
 import '../../../core/models/item.dart';
 import '../../../core/utils/html_utils.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../../core/widgets/snackbar_helper.dart';
-import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../data/items_repository.dart';
 import 'items_controller.dart';
@@ -59,7 +59,6 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
   }
 
   Future<void> _save(Item? existing) async {
-    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _saving = true);
@@ -72,7 +71,7 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
         createdAt: existing?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
         hidden: existing?.hidden ?? false,
-        language: existing?.language ?? ref.read(settingsControllerProvider).locale.languageCode,
+        language: existing?.language ?? AppStrings.defaultItemLanguage,
         relatedIds: existing?.relatedIds ?? const [],
         isNovena: existing?.isNovena ?? false,
         recommendedDate: existing?.recommendedDate,
@@ -80,11 +79,11 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
       );
       await ref.read(itemsRepositoryProvider).saveItem(item);
       if (mounted) {
-        SnackbarHelper.show(context, l10n.saveSuccess);
+        SnackbarHelper.show(context, AppStrings.saveSuccess);
         context.go('/');
       }
     } catch (_) {
-      if (mounted) SnackbarHelper.show(context, l10n.genericError, isError: true);
+      if (mounted) SnackbarHelper.show(context, AppStrings.genericError, isError: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -92,7 +91,6 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(settingsControllerProvider);
     final isEditing = widget.itemId != null;
 
@@ -102,11 +100,11 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? l10n.editItem : l10n.addItem),
+        title: Text(isEditing ? AppStrings.editItem : AppStrings.addItem),
         actions: [
           TextButton(
             onPressed: _saving ? null : () => _save(_editingItem(ref)),
-            child: Text(l10n.save),
+            child: const Text(AppStrings.save),
           ),
         ],
       ),
@@ -114,7 +112,7 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
           ? ref.watch(_singleItemFutureProvider(widget.itemId!)).when(
                 data: (item) {
                   if (item == null) {
-                    return Center(child: Text(l10n.notFound));
+                    return const Center(child: Text(AppStrings.notFound));
                   }
                   _load(item);
                   return _EditForm(
@@ -133,8 +131,8 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
                     saving: _saving,
                   );
                 },
-                error: (_, __) => Center(child: Text(l10n.genericError)),
-                loading: () => LoadingIndicator(label: l10n.loading),
+                error: (_, __) => const Center(child: Text(AppStrings.genericError)),
+                loading: () => const LoadingIndicator(label: AppStrings.loading),
               )
           : _EditForm(
               formKey: _formKey,
@@ -185,8 +183,6 @@ class _EditForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return AbsorbPointer(
       absorbing: saving,
       child: SingleChildScrollView(
@@ -198,16 +194,16 @@ class _EditForm extends StatelessWidget {
             children: [
               TextFormField(
                 controller: titleController,
-                decoration: InputDecoration(labelText: l10n.title),
+                decoration: const InputDecoration(labelText: AppStrings.title),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return l10n.title;
+                    return AppStrings.title;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-              Text(l10n.tags, style: Theme.of(context).textTheme.titleMedium),
+              Text(AppStrings.tags, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -215,7 +211,7 @@ class _EditForm extends StatelessWidget {
                     child: TextField(
                       controller: tagController,
                       onSubmitted: (_) => onAddTag(),
-                      decoration: InputDecoration(hintText: l10n.addTagHint),
+                      decoration: const InputDecoration(hintText: AppStrings.addTagHint),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -238,7 +234,7 @@ class _EditForm extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              Text(l10n.content, style: Theme.of(context).textTheme.titleMedium),
+              Text(AppStrings.content, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               HtmlEditorField(
                 controller: htmlController,

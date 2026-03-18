@@ -23,7 +23,6 @@ class SettingsRepository {
   static const _fontSizeKey = 'fontSize';
   static const _viewModeKey = 'viewMode';
   static const _pinnedIdsKey = 'pinnedIds';
-  static const _localeKey = 'locale';
 
   AppSettings load() {
     final themeModeName = _preferences.getString(_themeModeKey);
@@ -35,10 +34,8 @@ class SettingsRepository {
     final viewModeName = _preferences.getString(_viewModeKey);
     final viewMode = ItemListViewMode.values.firstWhere(
       (mode) => mode.name == viewModeName,
-      orElse: () => ItemListViewMode.cards,
+      orElse: () => ItemListViewMode.compact,
     );
-
-    final localeCode = _preferences.getString(_localeKey) ?? 'be';
 
     return AppSettings(
       themeMode: themeMode,
@@ -47,7 +44,6 @@ class SettingsRepository {
       fontSizeMultiplier: _preferences.getDouble(_fontSizeKey) ?? 1,
       viewMode: viewMode,
       pinnedIds: _preferences.getStringList(_pinnedIdsKey) ?? const [],
-      locale: Locale(localeCode),
     );
   }
 
@@ -59,7 +55,6 @@ class SettingsRepository {
       _preferences.setDouble(_fontSizeKey, settings.fontSizeMultiplier),
       _preferences.setString(_viewModeKey, settings.viewMode.name),
       _preferences.setStringList(_pinnedIdsKey, settings.pinnedIds),
-      _preferences.setString(_localeKey, settings.locale.languageCode),
     ]);
   }
 }

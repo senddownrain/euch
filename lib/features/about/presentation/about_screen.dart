@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 
-import '../../../l10n/app_localizations.dart';
+import '../../../core/constants/app_strings.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.about)),
+      appBar: AppBar(title: const Text(AppStrings.about)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.appTitle, style: Theme.of(context).textTheme.headlineMedium),
+            Text(AppStrings.appTitle, style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 16),
-            Text(l10n.aboutBody, style: Theme.of(context).textTheme.bodyLarge),
+            Text(AppStrings.aboutBody, style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 24),
             Card(
               child: ListTile(
@@ -25,7 +24,7 @@ class AboutScreen extends StatelessWidget {
                   Icons.auto_stories_rounded,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: Text(l10n.appTitle),
+                title: const Text(AppStrings.appTitle),
                 subtitle: const Text('Flutter • Firebase • Riverpod • Material 3'),
               ),
             ),

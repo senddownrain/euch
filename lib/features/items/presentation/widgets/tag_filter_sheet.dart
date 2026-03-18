@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../l10n/app_localizations.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../items_controller.dart';
 
 class TagFilterSheet extends ConsumerWidget {
@@ -14,7 +14,6 @@ class TagFilterSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
     final selected = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
 
     return SafeArea(
@@ -24,10 +23,10 @@ class TagFilterSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.tagFilterTitle, style: Theme.of(context).textTheme.titleLarge),
+            Text(AppStrings.tagFilterTitle, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             if (tags.isEmpty)
-              Text(l10n.noTags)
+              const Text(AppStrings.noTags)
             else
               Wrap(
                 spacing: 8,
@@ -46,12 +45,12 @@ class TagFilterSheet extends ConsumerWidget {
               children: [
                 OutlinedButton(
                   onPressed: () => ref.read(itemFiltersProvider.notifier).clearTags(),
-                  child: Text(l10n.clear),
+                  child: const Text(AppStrings.clear),
                 ),
                 const Spacer(),
                 FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(l10n.apply),
+                  child: const Text(AppStrings.apply),
                 ),
               ],
             ),
