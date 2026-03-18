@@ -70,7 +70,7 @@ class _HtmlEditorFieldState extends State<HtmlEditorField>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       children: [
@@ -120,7 +120,7 @@ class _HtmlEditorFieldState extends State<HtmlEditorField>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 child: SingleChildScrollView(
                   child: Html(

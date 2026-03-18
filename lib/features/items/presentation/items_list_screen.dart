@@ -27,7 +27,7 @@ class ItemsListScreen extends ConsumerStatefulWidget {
 class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
 
   Future<void> _deleteItem(BuildContext context, String id) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showConfirmationDialog(
       context: context,
       title: l10n.confirmDeleteTitle,
@@ -51,7 +51,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
   }
 
   Future<void> _downloadOffline(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     try {
       await ref.read(itemsRepositoryProvider).prefetchAll();
       if (mounted) SnackbarHelper.show(context, l10n.offlineReady);
@@ -62,7 +62,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final items = ref.watch(filteredItemsProvider);
     final tags = ref.watch(allTagsProvider);
     final isAdmin = ref.watch(isAdminLoggedInProvider);
@@ -196,7 +196,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
             ),
           );
         },
-        error: (_, __) => Center(child: Text(l10n.genericError)),
+        error: (_, _) => Center(child: Text(l10n.genericError)),
         loading: () => LoadingIndicator(label: l10n.loading),
       ),
     );
@@ -263,7 +263,7 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
                 ),
             ],
           ),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           loading: () => const LoadingIndicator(),
         );
       },

@@ -10,7 +10,7 @@ class TextSettingsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
@@ -26,7 +26,7 @@ class TextSettingsSheet extends ConsumerWidget {
             Text(l10n.fontFamily),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: settings.fontFamily,
+              initialValue: settings.fontFamily,
               items: [
                 for (final font in AppFonts.available)
                   DropdownMenuItem(value: font, child: Text(font)),

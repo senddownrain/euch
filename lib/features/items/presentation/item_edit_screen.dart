@@ -59,7 +59,7 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
   }
 
   Future<void> _save(Item? existing) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _saving = true);
@@ -92,7 +92,7 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final settings = ref.watch(settingsControllerProvider);
     final isEditing = widget.itemId != null;
 
@@ -133,7 +133,7 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
                     saving: _saving,
                   );
                 },
-                error: (_, __) => Center(child: Text(l10n.genericError)),
+                error: (_, _) => Center(child: Text(l10n.genericError)),
                 loading: () => LoadingIndicator(label: l10n.loading),
               )
           : _EditForm(
@@ -185,7 +185,7 @@ class _EditForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return AbsorbPointer(
       absorbing: saving,

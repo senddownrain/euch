@@ -11,7 +11,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
@@ -38,7 +38,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
-            value: settings.fontFamily,
+            initialValue: settings.fontFamily,
             decoration: InputDecoration(labelText: l10n.fontFamily),
             items: [
               for (final font in AppFonts.available)
@@ -69,7 +69,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           DropdownButtonFormField<Locale>(
-            value: settings.locale,
+            initialValue: settings.locale,
             decoration: InputDecoration(labelText: l10n.language),
             items: [
               DropdownMenuItem(value: const Locale('be'), child: Text(l10n.belarusian)),

@@ -20,7 +20,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   bool _busy = false;
 
   Future<void> _export(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
       final file = await ref.read(itemsRepositoryProvider).exportToJson();
@@ -34,7 +34,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
   }
 
   Future<void> _import(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
       final parsed = await ref.read(itemsRepositoryProvider).parseImportFile();
@@ -57,7 +57,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final items = ref.watch(allItemsProvider);
 
     return Scaffold(
@@ -67,7 +67,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         children: [
           items.when(
             data: (list) => Text(l10n.itemsCount(list.length)),
-            error: (_, __) => Text(l10n.genericError),
+            error: (_, _) => Text(l10n.genericError),
             loading: () => Text(l10n.loading),
           ),
           const SizedBox(height: 20),

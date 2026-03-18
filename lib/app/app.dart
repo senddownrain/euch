@@ -16,7 +16,7 @@ class EuchApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      onGenerateTitle: (context) => AppLocalizations.of(context)?.appTitle ?? 'Малітоўнік Эўхарыстак',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle ?? 'Малітоўнік Эўхарыстак',
       debugShowCheckedModeBanner: false,
       locale: settings.locale,
       supportedLocales: AppLocalizations.supportedLocales,
