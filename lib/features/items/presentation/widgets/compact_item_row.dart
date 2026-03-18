@@ -27,7 +27,9 @@ class CompactItemRow extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       title: Text(item.title),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      dense: true,
+      visualDensity: const VisualDensity(vertical: -2),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       trailing: Wrap(
         spacing: 2,
         children: [

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_strings.dart';
 import '../../../core/widgets/snackbar_helper.dart';
-import '../../../l10n/app_localizations.dart';
 import '../data/auth_repository.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -27,7 +27,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
-    final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
@@ -37,11 +36,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             password: _passwordController.text,
           );
       if (mounted) {
-        SnackbarHelper.show(context, l10n.loginSuccess);
+        SnackbarHelper.show(context, AppStrings.loginSuccess);
         context.go('/');
       }
     } catch (_) {
-      if (mounted) SnackbarHelper.show(context, l10n.loginError, isError: true);
+      if (mounted) SnackbarHelper.show(context, AppStrings.loginError, isError: true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -49,9 +48,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.login)),
+      appBar: AppBar(title: const Text(AppStrings.login)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480),
@@ -63,27 +61,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    l10n.loginRequiredBody,
+                    AppStrings.loginRequiredBody,
                     style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _emailController,
-                    decoration: InputDecoration(labelText: l10n.email),
+                    decoration: const InputDecoration(labelText: AppStrings.email),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) return l10n.email;
+                      if (value == null || value.trim().isEmpty) return AppStrings.email;
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
-                    decoration: InputDecoration(labelText: l10n.password),
+                    decoration: const InputDecoration(labelText: AppStrings.password),
                     obscureText: true,
                     validator: (value) {
-                      if (value == null || value.isEmpty) return l10n.password;
+                      if (value == null || value.isEmpty) return AppStrings.password;
                       return null;
                     },
                   ),
@@ -98,7 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Text(l10n.signIn),
+                          : const Text(AppStrings.signIn),
                     ),
                   ),
                 ],

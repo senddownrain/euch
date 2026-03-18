@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/about/presentation/about_screen.dart';
 import '../features/admin/presentation/admin_screen.dart';
-import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/data/auth_repository.dart';
+import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/providers.dart';
 import '../features/items/presentation/item_edit_screen.dart';
 import '../features/items/presentation/item_view_screen.dart';
@@ -74,10 +73,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin',
         builder: (context, state) => const AdminScreen(),
-      ),
-      GoRoute(
-        path: '/about',
-        builder: (context, state) => const AboutScreen(),
       ),
     ],
   );

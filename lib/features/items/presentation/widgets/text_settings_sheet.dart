@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_fonts.dart';
-import '../../../../l10n/app_localizations.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../settings/presentation/settings_controller.dart';
 
 class TextSettingsSheet extends ConsumerWidget {
@@ -10,7 +10,6 @@ class TextSettingsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
@@ -21,9 +20,9 @@ class TextSettingsSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.textSettings, style: Theme.of(context).textTheme.titleLarge),
+            Text(AppStrings.textSettings, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
-            Text(l10n.fontFamily),
+            const Text(AppStrings.fontFamily),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               initialValue: settings.fontFamily,
@@ -36,7 +35,7 @@ class TextSettingsSheet extends ConsumerWidget {
               },
             ),
             const SizedBox(height: 16),
-            Text(l10n.fontSize),
+            const Text(AppStrings.fontSize),
             Slider(
               value: settings.fontSizeMultiplier,
               min: 0.8,

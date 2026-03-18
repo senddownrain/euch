@@ -32,8 +32,6 @@ class SettingsController extends Notifier<AppSettings> {
 
   Future<void> updateViewMode(ItemListViewMode value) => _update(state.copyWith(viewMode: value));
 
-  Future<void> updateLocale(Locale value) => _update(state.copyWith(locale: value));
-
   Future<void> togglePin(String itemId) {
     final current = [...state.pinnedIds];
     if (current.contains(itemId)) {

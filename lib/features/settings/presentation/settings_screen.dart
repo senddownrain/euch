@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_fonts.dart';
-import '../../../l10n/app_localizations.dart';
+import '../../../core/constants/app_strings.dart';
 import '../domain/app_settings.dart';
 import 'settings_controller.dart';
 
@@ -11,20 +11,19 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settings)),
+      appBar: AppBar(title: const Text(AppStrings.settings)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           SegmentedButton<ThemeMode>(
             segments: [
-              ButtonSegment(value: ThemeMode.system, label: Text(l10n.systemTheme)),
-              ButtonSegment(value: ThemeMode.light, label: Text(l10n.lightTheme)),
-              ButtonSegment(value: ThemeMode.dark, label: Text(l10n.darkTheme)),
+              ButtonSegment(value: ThemeMode.system, label: Text(AppStrings.systemTheme)),
+              ButtonSegment(value: ThemeMode.light, label: Text(AppStrings.lightTheme)),
+              ButtonSegment(value: ThemeMode.dark, label: Text(AppStrings.darkTheme)),
             ],
             selected: {settings.themeMode},
             onSelectionChanged: (value) => controller.updateThemeMode(value.first),
@@ -34,12 +33,12 @@ class SettingsScreen extends ConsumerWidget {
             contentPadding: EdgeInsets.zero,
             value: settings.keepScreenOn,
             onChanged: controller.updateKeepScreenOn,
-            title: Text(l10n.keepScreenOn),
+            title: const Text(AppStrings.keepScreenOn),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
-            initialValue: settings.fontFamily,
-            decoration: InputDecoration(labelText: l10n.fontFamily),
+            value: settings.fontFamily,
+            decoration: const InputDecoration(labelText: AppStrings.fontFamily),
             items: [
               for (final font in AppFonts.available)
                 DropdownMenuItem(value: font, child: Text(font)),
@@ -49,7 +48,7 @@ class SettingsScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 20),
-          Text(l10n.fontSize),
+          const Text(AppStrings.fontSize),
           Slider(
             value: settings.fontSizeMultiplier,
             min: 0.8,
@@ -61,26 +60,14 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           SegmentedButton<ItemListViewMode>(
             segments: [
-              ButtonSegment(value: ItemListViewMode.cards, label: Text(l10n.cardView)),
-              ButtonSegment(value: ItemListViewMode.compact, label: Text(l10n.compactView)),
+              ButtonSegment(value: ItemListViewMode.cards, label: Text(AppStrings.cardView)),
+              ButtonSegment(value: ItemListViewMode.compact, label: Text(AppStrings.compactView)),
             ],
             selected: {settings.viewMode},
             onSelectionChanged: (value) => controller.updateViewMode(value.first),
           ),
-          const SizedBox(height: 20),
-          DropdownButtonFormField<Locale>(
-            initialValue: settings.locale,
-            decoration: InputDecoration(labelText: l10n.language),
-            items: [
-              DropdownMenuItem(value: const Locale('be'), child: Text(l10n.belarusian)),
-              DropdownMenuItem(value: const Locale('ru'), child: Text(l10n.russian)),
-            ],
-            onChanged: (value) {
-              if (value != null) controller.updateLocale(value);
-            },
-          ),
           const SizedBox(height: 24),
-          Text(l10n.readPreview, style: Theme.of(context).textTheme.titleMedium),
+          Text(AppStrings.readPreview, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           Card(
             child: Padding(
