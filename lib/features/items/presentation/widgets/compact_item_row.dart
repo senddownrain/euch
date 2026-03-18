@@ -26,20 +26,36 @@ class CompactItemRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
-      title: Text(item.title),
-      dense: true,
-      visualDensity: const VisualDensity(vertical: -2),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      minTileHeight: 72,
+      title: Text(
+        item.title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       trailing: Wrap(
-        spacing: 2,
+        spacing: 6,
         children: [
           IconButton(
             onPressed: onTogglePin,
+            iconSize: 24,
+            splashRadius: 24,
             icon: Icon(isPinned ? Icons.push_pin : Icons.push_pin_outlined),
           ),
           if (isAdmin) ...[
-            IconButton(onPressed: onEdit, icon: const Icon(Icons.edit_outlined)),
-            IconButton(onPressed: onDelete, icon: const Icon(Icons.delete_outline)),
+            IconButton(
+              onPressed: onEdit,
+              iconSize: 24,
+              splashRadius: 24,
+              icon: const Icon(Icons.edit_outlined),
+            ),
+            IconButton(
+              onPressed: onDelete,
+              iconSize: 24,
+              splashRadius: 24,
+              icon: const Icon(Icons.delete_outline),
+            ),
           ],
         ],
       ),

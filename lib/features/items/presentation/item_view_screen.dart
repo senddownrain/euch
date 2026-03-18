@@ -46,9 +46,9 @@ class ItemViewScreen extends ConsumerWidget {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                title: Text(
-                  item.title,
-                  maxLines: 2,
+                title: const Text(
+                  AppStrings.appTitle,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 expandedHeight: 88,
@@ -80,7 +80,9 @@ class ItemViewScreen extends ConsumerWidget {
                     children: [
                       Text(
                         item.title,
-                        style: Theme.of(context).textTheme.headlineSmall,
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
                       const SizedBox(height: 20),
                       Html(
