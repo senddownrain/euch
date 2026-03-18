@@ -27,15 +27,7 @@ class ItemsListScreen extends ConsumerStatefulWidget {
 }
 
 class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
-  _OfflineSyncStatus _offlineSyncStatus = _OfflineSyncStatus.syncing;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _syncOffline();
-    });
-  }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<void> _deleteItem(BuildContext context, String id) async {
     final confirmed = await showConfirmationDialog(
@@ -60,24 +52,19 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
     }
   }
 
-  Future<void> _syncOffline({bool showFeedback = false}) async {
-    if (mounted) {
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.syncing);
-    }
-    try {
-      await ref.read(itemsRepositoryProvider).prefetchAll();
-      if (!mounted) return;
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.ready);
-      if (showFeedback) {
-        SnackbarHelper.show(context, AppStrings.offlineReady);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.error);
-      if (showFeedback) {
-        SnackbarHelper.show(context, AppStrings.networkUnavailable, isError: true);
-      }
-    }
+  void _openSearch() {
+    showSearch(
+      context: context,
+      delegate: _ItemsSearchDelegate(AppStrings.searchHint),
+    );
+  }
+
+  void _openFilters(List<String> tags) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => TagFilterSheet(tags: tags),
+    );
   }
 
   @override
@@ -89,85 +76,92 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
     final selectedTags = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
 
     return Scaffold(
+      key: _scaffoldKey,
+      endDrawer: Drawer(
+        child: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                child: Text(
+                  AppStrings.appTitle,
+                  style: Theme.of(context).textTheme.titleLarge,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined),
+                title: const Text(AppStrings.settings),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/settings');
+                },
+              ),
+              ExpansionTile(
+                leading: const Icon(Icons.tune_outlined),
+                title: const Text(AppStrings.searchAndFilters),
+                childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                children: [
+                  ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    leading: const Icon(Icons.search),
+                    title: const Text(AppStrings.search),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _openSearch();
+                    },
+                  ),
+                  ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    leading: _FilterIcon(selectedCount: selectedTags.length),
+                    title: const Text(AppStrings.filters),
+                    subtitle: selectedTags.isEmpty
+                        ? const Text(AppStrings.filtersNotSelected)
+                        : Text(AppStrings.filtersSelected(selectedTags.length)),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _openFilters(tags.asData?.value ?? const []);
+                    },
+                  ),
+                ],
+              ),
+              if (isAdmin)
+                ListTile(
+                  leading: const Icon(Icons.admin_panel_settings_outlined),
+                  title: const Text(AppStrings.admin),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.push('/admin');
+                  },
+                ),
+              if (isAdmin)
+                ListTile(
+                  leading: const Icon(Icons.logout_outlined),
+                  title: const Text(AppStrings.logout),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await ref.read(authRepositoryProvider).signOut();
+                    if (mounted) SnackbarHelper.show(context, AppStrings.logoutSuccess);
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
       appBar: AppBar(
         toolbarHeight: 76,
         title: const Text(
           AppStrings.appTitle,
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Tooltip(
-              message: _offlineSyncStatus.label,
-              child: Icon(
-                _offlineSyncStatus.icon,
-                color: _offlineSyncStatus.color(context),
-              ),
-            ),
-          ),
           IconButton(
-            tooltip: AppStrings.search,
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: _ItemsSearchDelegate(AppStrings.searchHint),
-              );
-            },
-            icon: const Icon(Icons.search),
-          ),
-          IconButton(
-            tooltip: AppStrings.filters,
-            onPressed: () {
-              showModalBottomSheet<void>(
-                context: context,
-                showDragHandle: true,
-                builder: (_) => TagFilterSheet(
-                  tags: tags.asData?.value ?? const [],
-                ),
-              );
-            },
-            icon: _FilterIcon(selectedCount: selectedTags.length),
-          ),
-          PopupMenuButton<_HomeMenuAction>(
-            onSelected: (action) async {
-              switch (action) {
-                case _HomeMenuAction.settings:
-                  context.push('/settings');
-                  return;
-                case _HomeMenuAction.admin:
-                  context.push('/admin');
-                  return;
-                case _HomeMenuAction.logout:
-                  await ref.read(authRepositoryProvider).signOut();
-                  if (mounted) SnackbarHelper.show(context, AppStrings.logoutSuccess);
-                  return;
-                case _HomeMenuAction.refreshDatabase:
-                  await _syncOffline(showFeedback: true);
-                  return;
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: _HomeMenuAction.settings,
-                child: const Text(AppStrings.settings),
-              ),
-              PopupMenuItem(
-                value: _HomeMenuAction.refreshDatabase,
-                child: const Text(AppStrings.updateDatabase),
-              ),
-              if (isAdmin)
-                PopupMenuItem(
-                  value: _HomeMenuAction.admin,
-                  child: const Text(AppStrings.admin),
-                ),
-              if (isAdmin)
-                PopupMenuItem(
-                  value: _HomeMenuAction.logout,
-                  child: const Text(AppStrings.logout),
-                ),
-            ],
+            tooltip: AppStrings.menu,
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+            icon: const Icon(Icons.menu),
           ),
         ],
       ),
@@ -187,27 +181,14 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
             );
           }
 
-          return RefreshIndicator(
-            onRefresh: () => _syncOffline(showFeedback: true),
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 96, top: 8),
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                final item = list[index];
-                final isPinned = settings.pinnedIds.contains(item.id);
-                if (settings.viewMode == ItemListViewMode.compact) {
-                  return CompactItemRow(
-                    item: item,
-                    isPinned: isPinned,
-                    isAdmin: isAdmin,
-                    onTap: () => context.push('/item/${item.id}'),
-                    onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
-                    onEdit: () => context.push('/item/edit/${item.id}'),
-                    onDelete: () => _deleteItem(context, item.id),
-                  );
-                }
-
-                return ItemCard(
+          return ListView.builder(
+            padding: const EdgeInsets.only(bottom: 96, top: 12),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final item = list[index];
+              final isPinned = settings.pinnedIds.contains(item.id);
+              if (settings.viewMode == ItemListViewMode.compact) {
+                return CompactItemRow(
                   item: item,
                   isPinned: isPinned,
                   isAdmin: isAdmin,
@@ -215,39 +196,27 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                   onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
                   onEdit: () => context.push('/item/edit/${item.id}'),
                   onDelete: () => _deleteItem(context, item.id),
-                  editLabel: AppStrings.edit,
-                  deleteLabel: AppStrings.delete,
                 );
-              },
-            ),
+              }
+
+              return ItemCard(
+                item: item,
+                isPinned: isPinned,
+                isAdmin: isAdmin,
+                onTap: () => context.push('/item/${item.id}'),
+                onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
+                onEdit: () => context.push('/item/edit/${item.id}'),
+                onDelete: () => _deleteItem(context, item.id),
+                editLabel: AppStrings.edit,
+                deleteLabel: AppStrings.delete,
+              );
+            },
           );
         },
         error: (_, __) => const Center(child: Text(AppStrings.genericError)),
         loading: () => const LoadingIndicator(label: AppStrings.loading),
       ),
     );
-  }
-}
-
-enum _HomeMenuAction { settings, admin, logout, refreshDatabase }
-
-enum _OfflineSyncStatus {
-  syncing(Icons.cloud_sync_outlined, AppStrings.offlineStatusSyncing),
-  ready(Icons.cloud_done_outlined, AppStrings.offlineStatusReady),
-  error(Icons.cloud_off_outlined, AppStrings.offlineStatusError);
-
-  const _OfflineSyncStatus(this.icon, this.label);
-
-  final IconData icon;
-  final String label;
-
-  Color color(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      _OfflineSyncStatus.syncing => scheme.primary,
-      _OfflineSyncStatus.ready => Colors.green,
-      _OfflineSyncStatus.error => scheme.error,
-    };
   }
 }
 

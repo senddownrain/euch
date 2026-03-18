@@ -3,14 +3,39 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_fonts.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/widgets/snackbar_helper.dart';
+import '../../items/data/items_repository.dart';
 import '../domain/app_settings.dart';
 import 'settings_controller.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  _OfflineSyncStatus _offlineSyncStatus = _OfflineSyncStatus.idle;
+
+  Future<void> _syncOffline() async {
+    if (mounted) {
+      setState(() => _offlineSyncStatus = _OfflineSyncStatus.syncing);
+    }
+    try {
+      await ref.read(itemsRepositoryProvider).prefetchAll();
+      if (!mounted) return;
+      setState(() => _offlineSyncStatus = _OfflineSyncStatus.ready);
+      SnackbarHelper.show(context, AppStrings.offlineReady);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _offlineSyncStatus = _OfflineSyncStatus.error);
+      SnackbarHelper.show(context, AppStrings.networkUnavailable, isError: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
@@ -19,6 +44,35 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(AppStrings.databaseSectionTitle, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(
+                        _offlineSyncStatus.icon,
+                        color: _offlineSyncStatus.color(context),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(_offlineSyncStatus.label)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: _offlineSyncStatus == _OfflineSyncStatus.syncing ? null : _syncOffline,
+                    icon: const Icon(Icons.cloud_download_outlined),
+                    label: const Text(AppStrings.updateDatabase),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
           SegmentedButton<ThemeMode>(
             segments: [
               ButtonSegment(value: ThemeMode.system, label: Text(AppStrings.systemTheme)),
@@ -84,5 +138,27 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+enum _OfflineSyncStatus {
+  idle(Icons.info_outline, AppStrings.offlineStatusIdle),
+  syncing(Icons.cloud_sync_outlined, AppStrings.offlineStatusSyncing),
+  ready(Icons.cloud_done_outlined, AppStrings.offlineStatusReady),
+  error(Icons.cloud_off_outlined, AppStrings.offlineStatusError);
+
+  const _OfflineSyncStatus(this.icon, this.label);
+
+  final IconData icon;
+  final String label;
+
+  Color color(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return switch (this) {
+      _OfflineSyncStatus.idle => scheme.onSurfaceVariant,
+      _OfflineSyncStatus.syncing => scheme.primary,
+      _OfflineSyncStatus.ready => Colors.green,
+      _OfflineSyncStatus.error => scheme.error,
+    };
   }
 }

@@ -5,8 +5,12 @@ class AppStrings {
   static const defaultItemLanguage = 'be';
 
   static const search = 'Пошук';
+  static const menu = 'Меню';
   static const searchHint = 'Шукаць па назве або тэксце';
   static const filters = 'Фільтры';
+  static const searchAndFilters = 'Пошук і фільтры';
+  static const filtersNotSelected = 'Фільтры не выбраныя';
+  static const databaseSectionTitle = 'Абнаўленне базы';
   static const settings = 'Налады';
   static const admin = 'Адміністраванне';
   static const login = 'Уваход';
@@ -68,6 +72,7 @@ class AppStrings {
   static const importOverwrite = 'Перазапісваць';
   static const exportJson = 'Экспартаваць JSON';
   static const importJson = 'Імпартаваць JSON';
+  static const offlineStatusIdle = 'База гатовая да абнаўлення';
   static const offlineStatusSyncing = 'Сінхранізацыя афлайн-даных';
   static const offlineStatusReady = 'Афлайн-рэжым гатовы';
   static const offlineStatusError = 'Не ўдалося абнавіць афлайн-даныя';
@@ -78,5 +83,9 @@ class AppStrings {
 
   static String itemsCount(int count) {
     return 'Усяго запісаў: $count';
+  }
+
+  static String filtersSelected(int count) {
+    return 'Абрана фільтраў: $count';
   }
 }
