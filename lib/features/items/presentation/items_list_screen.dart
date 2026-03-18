@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_strings.dart';
+import '../../../core/utils/html_utils.dart';
+import '../../../core/utils/item_sorter.dart';
 import '../../../core/widgets/confirmation_dialog.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/loading_indicator.dart';
@@ -110,7 +112,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
             onPressed: () {
               showSearch(
                 context: context,
-                delegate: _ItemsSearchDelegate(ref, AppStrings.searchHint),
+                delegate: _ItemsSearchDelegate(AppStrings.searchHint),
               );
             },
             icon: const Icon(Icons.search),
