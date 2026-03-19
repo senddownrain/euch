@@ -11,6 +11,7 @@ class AppStrings {
   static const searchAndFilters = 'Пошук і фільтры';
   static const filtersNotSelected = 'Фільтры не выбраныя';
   static const databaseSectionTitle = 'Абнаўленне базы';
+  static const databaseSectionSubtitle = 'Загрузіце свежыя даныя ў кэш, каб яны былі даступныя без сеткі.';
   static const settings = 'Налады';
   static const admin = 'Адміністраванне';
   static const login = 'Уваход';

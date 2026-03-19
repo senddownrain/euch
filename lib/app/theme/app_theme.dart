@@ -298,7 +298,6 @@ class AppTheme {
     bottomSheetRadius: 28,
     popupMenuRadius: 18,
     chipRadius: 999,
-    appBarElevation: 0,
     appBarScrolledUnderElevation: 0,
     appBarCenterTitle: false,
   );

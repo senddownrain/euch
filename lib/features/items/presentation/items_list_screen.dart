@@ -16,6 +16,7 @@ import '../../settings/domain/app_settings.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../data/items_repository.dart';
 import 'items_controller.dart';
+import 'offline_sync_status.dart';
 import 'widgets/compact_item_row.dart';
 import 'widgets/item_card.dart';
 import 'widgets/tag_filter_sheet.dart';
@@ -27,8 +28,10 @@ class ItemsListScreen extends ConsumerStatefulWidget {
   ConsumerState<ItemsListScreen> createState() => _ItemsListScreenState();
 }
 
+enum _HomeMenuAction { settings, refreshDatabase, admin, logout }
+
 class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  OfflineSyncStatus _offlineSyncStatus = OfflineSyncStatus.idle;
 
   Future<void> _deleteItem(BuildContext context, String id) async {
     final confirmed = await showConfirmationDialog(
@@ -49,6 +52,27 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
     } catch (_) {
       if (mounted) {
         SnackbarHelper.show(context, AppStrings.genericError, isError: true);
+      }
+    }
+  }
+
+  Future<void> _syncOffline({bool showFeedback = false}) async {
+    if (mounted) {
+      setState(() => _offlineSyncStatus = OfflineSyncStatus.syncing);
+    }
+
+    try {
+      await ref.read(itemsRepositoryProvider).prefetchAll();
+      if (!mounted) return;
+      setState(() => _offlineSyncStatus = OfflineSyncStatus.ready);
+      if (showFeedback) {
+        SnackbarHelper.show(context, AppStrings.offlineReady);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _offlineSyncStatus = OfflineSyncStatus.error);
+      if (showFeedback) {
+        SnackbarHelper.show(context, AppStrings.networkUnavailable, isError: true);
       }
     }
   }
@@ -81,6 +105,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.72),
         surfaceTintColor: Colors.transparent,
+        toolbarHeight: 76,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -110,45 +135,35 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
           ),
           IconButton(
             tooltip: AppStrings.search,
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: _ItemsSearchDelegate(AppStrings.searchHint),
-              );
-            },
+            onPressed: _openSearch,
             icon: const Icon(Icons.search),
           ),
           IconButton(
             tooltip: AppStrings.filters,
-            onPressed: () {
-              showModalBottomSheet<void>(
-                context: context,
-                showDragHandle: true,
-                builder: (_) => TagFilterSheet(
-                  tags: tags.asData?.value ?? const [],
-                ),
-              );
-            },
+            onPressed: () => _openFilters(tags.asData?.value ?? const []),
             icon: _FilterIcon(selectedCount: selectedTags.length),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: PopupMenuButton<_HomeMenuAction>(
+              tooltip: AppStrings.menu,
               position: PopupMenuPosition.under,
               onSelected: (action) async {
                 switch (action) {
                   case _HomeMenuAction.settings:
-                    context.push('/settings');
-                    return;
-                  case _HomeMenuAction.admin:
-                    context.push('/admin');
-                    return;
-                  case _HomeMenuAction.logout:
-                    await ref.read(authRepositoryProvider).signOut();
-                    if (mounted) SnackbarHelper.show(context, AppStrings.logoutSuccess);
+                    if (mounted) context.push('/settings');
                     return;
                   case _HomeMenuAction.refreshDatabase:
                     await _syncOffline(showFeedback: true);
+                    return;
+                  case _HomeMenuAction.admin:
+                    if (mounted) context.push('/admin');
+                    return;
+                  case _HomeMenuAction.logout:
+                    await ref.read(authRepositoryProvider).signOut();
+                    if (mounted) {
+                      SnackbarHelper.show(context, AppStrings.logoutSuccess);
+                    }
                     return;
                 }
               },
@@ -172,22 +187,8 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                     child: Text(AppStrings.logout),
                   ),
               ],
+              icon: const Icon(Icons.more_vert),
             ),
-          ),
-        ),
-      ),
-      appBar: AppBar(
-        toolbarHeight: 76,
-        title: const Text(
-          AppStrings.appTitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        actions: [
-          IconButton(
-            tooltip: AppStrings.menu,
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-            icon: const Icon(Icons.menu),
           ),
         ],
       ),
@@ -201,9 +202,18 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
       body: items.when(
         data: (list) {
           if (list.isEmpty) {
-            return const EmptyState(
-              title: AppStrings.emptyItemsTitle,
-              subtitle: AppStrings.emptyItemsSubtitle,
+            return RefreshIndicator(
+              onRefresh: () => _syncOffline(showFeedback: true),
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 120),
+                  EmptyState(
+                    title: AppStrings.emptyItemsTitle,
+                    subtitle: AppStrings.emptyItemsSubtitle,
+                  ),
+                ],
+              ),
             );
           }
 
