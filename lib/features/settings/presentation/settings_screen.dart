@@ -6,6 +6,7 @@ import '../../../core/constants/app_fonts.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/widgets/snackbar_helper.dart';
 import '../../items/data/items_repository.dart';
+import '../../items/presentation/offline_sync_status.dart';
 import '../domain/app_settings.dart';
 import 'settings_controller.dart';
 
@@ -17,20 +18,20 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  _OfflineSyncStatus _offlineSyncStatus = _OfflineSyncStatus.idle;
+  OfflineSyncStatus _offlineSyncStatus = OfflineSyncStatus.idle;
 
   Future<void> _syncOffline() async {
     if (mounted) {
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.syncing);
+      setState(() => _offlineSyncStatus = OfflineSyncStatus.syncing);
     }
     try {
       await ref.read(itemsRepositoryProvider).prefetchAll();
       if (!mounted) return;
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.ready);
+      setState(() => _offlineSyncStatus = OfflineSyncStatus.ready);
       SnackbarHelper.show(context, AppStrings.offlineReady);
     } catch (_) {
       if (!mounted) return;
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.error);
+      setState(() => _offlineSyncStatus = OfflineSyncStatus.error);
       SnackbarHelper.show(context, AppStrings.networkUnavailable, isError: true);
     }
   }
@@ -115,6 +116,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                   selected: {settings.viewMode},
                   onSelectionChanged: (value) => controller.updateViewMode(value.first),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _SettingsSection(
+            title: AppStrings.databaseSectionTitle,
+            subtitle: AppStrings.databaseSectionSubtitle,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _offlineSyncStatus.icon,
+                      color: _offlineSyncStatus.color(context),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _offlineSyncStatus.label,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: _offlineSyncStatus == OfflineSyncStatus.syncing ? null : _syncOffline,
+                  icon: const Icon(Icons.download_for_offline_outlined),
+                  label: const Text(AppStrings.updateDatabase),
                 ),
               ],
             ),
