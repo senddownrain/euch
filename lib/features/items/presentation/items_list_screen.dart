@@ -28,7 +28,7 @@ class ItemsListScreen extends ConsumerStatefulWidget {
   ConsumerState<ItemsListScreen> createState() => _ItemsListScreenState();
 }
 
-enum _HomeMenuAction { settings, refreshDatabase, admin, logout }
+enum _HomeMenuAction { settings, admin, logout }
 
 class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
   OfflineSyncStatus _offlineSyncStatus = OfflineSyncStatus.idle;
@@ -106,21 +106,11 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
         backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.72),
         surfaceTintColor: Colors.transparent,
         toolbarHeight: 76,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppStrings.appTitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleLarge?.copyWith(fontSize: 24),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              AppStrings.itemsCount(items.asData?.value.length ?? 0),
-              style: theme.textTheme.bodySmall,
-            ),
-          ],
+        title: Text(
+          AppStrings.appTitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.titleLarge?.copyWith(fontSize: 24),
         ),
         actions: [
           Padding(
@@ -153,9 +143,6 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                   case _HomeMenuAction.settings:
                     if (mounted) context.push('/settings');
                     return;
-                  case _HomeMenuAction.refreshDatabase:
-                    await _syncOffline(showFeedback: true);
-                    return;
                   case _HomeMenuAction.admin:
                     if (mounted) context.push('/admin');
                     return;
@@ -171,10 +158,6 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                 const PopupMenuItem(
                   value: _HomeMenuAction.settings,
                   child: Text(AppStrings.settings),
-                ),
-                const PopupMenuItem(
-                  value: _HomeMenuAction.refreshDatabase,
-                  child: Text(AppStrings.updateDatabase),
                 ),
                 if (isAdmin)
                   const PopupMenuItem(
