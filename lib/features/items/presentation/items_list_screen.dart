@@ -28,15 +28,7 @@ class ItemsListScreen extends ConsumerStatefulWidget {
 }
 
 class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
-  _OfflineSyncStatus _offlineSyncStatus = _OfflineSyncStatus.syncing;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _syncOffline();
-    });
-  }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<void> _deleteItem(BuildContext context, String id) async {
     final confirmed = await showConfirmationDialog(
@@ -61,24 +53,19 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
     }
   }
 
-  Future<void> _syncOffline({bool showFeedback = false}) async {
-    if (mounted) {
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.syncing);
-    }
-    try {
-      await ref.read(itemsRepositoryProvider).prefetchAll();
-      if (!mounted) return;
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.ready);
-      if (showFeedback) {
-        SnackbarHelper.show(context, AppStrings.offlineReady);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _offlineSyncStatus = _OfflineSyncStatus.error);
-      if (showFeedback) {
-        SnackbarHelper.show(context, AppStrings.networkUnavailable, isError: true);
-      }
-    }
+  void _openSearch() {
+    showSearch(
+      context: context,
+      delegate: _ItemsSearchDelegate(AppStrings.searchHint),
+    );
+  }
+
+  void _openFilters(List<String> tags) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => TagFilterSheet(tags: tags),
+    );
   }
 
   @override
@@ -187,6 +174,21 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
               ],
             ),
           ),
+        ),
+      ),
+      appBar: AppBar(
+        toolbarHeight: 76,
+        title: const Text(
+          AppStrings.appTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        actions: [
+          IconButton(
+            tooltip: AppStrings.menu,
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+            icon: const Icon(Icons.menu),
+          ),
         ],
       ),
       floatingActionButton: isAdmin
@@ -252,28 +254,6 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
         loading: () => const LoadingIndicator(label: AppStrings.loading),
       ),
     );
-  }
-}
-
-enum _HomeMenuAction { settings, admin, logout, refreshDatabase }
-
-enum _OfflineSyncStatus {
-  syncing(Icons.cloud_sync_outlined, AppStrings.offlineStatusSyncing),
-  ready(Icons.cloud_done_outlined, AppStrings.offlineStatusReady),
-  error(Icons.cloud_off_outlined, AppStrings.offlineStatusError);
-
-  const _OfflineSyncStatus(this.icon, this.label);
-
-  final IconData icon;
-  final String label;
-
-  Color color(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      _OfflineSyncStatus.syncing => scheme.primary,
-      _OfflineSyncStatus.ready => Colors.green,
-      _OfflineSyncStatus.error => scheme.error,
-    };
   }
 }
 

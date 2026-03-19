@@ -4,14 +4,39 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/app_fonts.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/widgets/snackbar_helper.dart';
+import '../../items/data/items_repository.dart';
 import '../domain/app_settings.dart';
 import 'settings_controller.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  _OfflineSyncStatus _offlineSyncStatus = _OfflineSyncStatus.idle;
+
+  Future<void> _syncOffline() async {
+    if (mounted) {
+      setState(() => _offlineSyncStatus = _OfflineSyncStatus.syncing);
+    }
+    try {
+      await ref.read(itemsRepositoryProvider).prefetchAll();
+      if (!mounted) return;
+      setState(() => _offlineSyncStatus = _OfflineSyncStatus.ready);
+      SnackbarHelper.show(context, AppStrings.offlineReady);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _offlineSyncStatus = _OfflineSyncStatus.error);
+      SnackbarHelper.show(context, AppStrings.networkUnavailable, isError: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
     final theme = Theme.of(context);
