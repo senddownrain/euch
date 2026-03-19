@@ -17,10 +17,11 @@ class TagFilterSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
     final theme = Theme.of(context);
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(24, 12, 24, 28 + bottomInset),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

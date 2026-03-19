@@ -18,8 +18,8 @@ class EuchApp extends ConsumerWidget {
       title: AppStrings.appTitle,
       debugShowCheckedModeBanner: false,
       themeMode: settings.themeMode,
-      theme: AppTheme.build(Brightness.light, settings.fontFamily),
-      darkTheme: AppTheme.build(Brightness.dark, settings.fontFamily),
+      theme: AppTheme.build(Brightness.light),
+      darkTheme: AppTheme.build(Brightness.dark),
       routerConfig: router,
     );
   }

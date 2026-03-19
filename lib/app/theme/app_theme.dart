@@ -11,7 +11,7 @@ class AppTheme {
   static const Color _darkScaffold = Color(0xFF16181C);
   static const Color _darkSurface = Color(0xFF1D2025);
 
-  static ThemeData build(Brightness brightness, String fontFamily) {
+  static ThemeData build(Brightness brightness) {
     final theme = switch (brightness) {
       Brightness.light => FlexThemeData.light(
           colors: const FlexSchemeColor(
@@ -36,8 +36,7 @@ class AppTheme {
           ),
           useMaterial3: true,
           visualDensity: FlexColorScheme.comfortablePlatformDensity,
-          textTheme: _uiTextTheme(Brightness.light, fontFamily),
-          scaffoldBackground: _lightScaffold,
+          textTheme: _uiTextTheme(Brightness.light),
         ),
       Brightness.dark => FlexThemeData.dark(
           colors: const FlexSchemeColor(
@@ -62,15 +61,14 @@ class AppTheme {
           ),
           useMaterial3: true,
           visualDensity: FlexColorScheme.comfortablePlatformDensity,
-          textTheme: _uiTextTheme(Brightness.dark, fontFamily),
-          scaffoldBackground: _darkScaffold,
+          textTheme: _uiTextTheme(Brightness.dark),
         ),
     };
 
     return theme.copyWith(
       scaffoldBackgroundColor: brightness == Brightness.light ? _lightScaffold : _darkScaffold,
       canvasColor: brightness == Brightness.light ? _lightSurface : _darkSurface,
-      splashFactory: InkSparkle.splashFactory,
+      splashFactory: InkRipple.splashFactory,
       appBarTheme: theme.appBarTheme.copyWith(
         backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.82),
         foregroundColor: theme.colorScheme.onSurface,
@@ -205,15 +203,16 @@ class AppTheme {
     );
   }
 
-  static TextTheme _uiTextTheme(Brightness brightness, String fontFamily) {
-    final base = brightness == Brightness.light ? ThemeData.light(useMaterial3: true) : ThemeData.dark(useMaterial3: true);
+  static TextTheme _uiTextTheme(Brightness brightness) {
+    final base = brightness == Brightness.light
+        ? ThemeData.light(useMaterial3: true)
+        : ThemeData.dark(useMaterial3: true);
     final textTheme = GoogleFonts.interTextTheme(base.textTheme);
-    final readingTheme = _readerBaseTheme(brightness, fontFamily);
     final bodyColor = brightness == Brightness.light ? const Color(0xFF21262D) : const Color(0xFFE6EAF0);
     final mutedColor = brightness == Brightness.light ? const Color(0xFF5E6773) : const Color(0xFFA9B1BC);
 
     return textTheme.copyWith(
-      headlineSmall: readingTheme.headlineSmall?.copyWith(
+      headlineSmall: textTheme.headlineSmall?.copyWith(
         color: bodyColor,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.6,
@@ -229,11 +228,11 @@ class AppTheme {
         fontWeight: FontWeight.w600,
         letterSpacing: -0.2,
       ),
-      bodyLarge: readingTheme.bodyLarge?.copyWith(
+      bodyLarge: textTheme.bodyLarge?.copyWith(
         color: bodyColor,
         height: 1.45,
       ),
-      bodyMedium: readingTheme.bodyMedium?.copyWith(
+      bodyMedium: textTheme.bodyMedium?.copyWith(
         color: bodyColor,
         height: 1.42,
       ),
@@ -255,7 +254,9 @@ class AppTheme {
   }
 
   static TextTheme _readerBaseTheme(Brightness brightness, String fontFamily) {
-    final base = brightness == Brightness.light ? ThemeData.light(useMaterial3: true) : ThemeData.dark(useMaterial3: true);
+    final base = brightness == Brightness.light
+        ? ThemeData.light(useMaterial3: true)
+        : ThemeData.dark(useMaterial3: true);
     return _applyReadingFont(base.textTheme, fontFamily);
   }
 
@@ -284,6 +285,7 @@ class AppTheme {
     defaultRadius: 16,
     cardRadius: 20,
     cardElevation: 0,
+    cardBorderWidth: 1,
     elevatedButtonRadius: 14,
     filledButtonRadius: 14,
     outlinedButtonRadius: 14,
@@ -299,6 +301,5 @@ class AppTheme {
     appBarElevation: 0,
     appBarScrolledUnderElevation: 0,
     appBarCenterTitle: false,
-    cardOutlinedBorderWidth: 1,
   );
 }
