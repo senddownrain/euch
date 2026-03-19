@@ -64,7 +64,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         children: [
           items.when(
             data: (list) => Text(AppStrings.itemsCount(list.length)),
-            error: (_, __) => const Text(AppStrings.genericError),
+            error: (_, _) => const Text(AppStrings.genericError),
             loading: () => const Text(AppStrings.loading),
           ),
           const SizedBox(height: 20),

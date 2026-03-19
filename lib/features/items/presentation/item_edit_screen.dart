@@ -131,7 +131,7 @@ class _ItemEditScreenState extends ConsumerState<ItemEditScreen> {
                     saving: _saving,
                   );
                 },
-                error: (_, __) => const Center(child: Text(AppStrings.genericError)),
+                error: (_, _) => const Center(child: Text(AppStrings.genericError)),
                 loading: () => const LoadingIndicator(label: AppStrings.loading),
               )
           : _EditForm(
