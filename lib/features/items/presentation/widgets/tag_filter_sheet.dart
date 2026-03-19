@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -15,22 +16,27 @@ class TagFilterSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
+    final theme = Theme.of(context);
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppStrings.tagFilterTitle, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
+            Text(AppStrings.tagFilterTitle, style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(AppStrings.settingsFilterSubtitle, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 20),
             if (tags.isEmpty)
               const Text(AppStrings.noTags)
             else
               Wrap(
                 spacing: 8,
-                runSpacing: 8,
+                runSpacing: 10,
                 children: [
                   for (final tag in tags)
                     FilterChip(
@@ -40,7 +46,7 @@ class TagFilterSheet extends ConsumerWidget {
                     ),
                 ],
               ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Row(
               children: [
                 OutlinedButton(
@@ -55,7 +61,10 @@ class TagFilterSheet extends ConsumerWidget {
               ],
             ),
           ],
-        ),
+        )
+            .animate()
+            .fadeIn(duration: 220.ms)
+            .slideY(begin: 0.08, end: 0, duration: 220.ms, curve: Curves.easeOutCubic),
       ),
     );
   }

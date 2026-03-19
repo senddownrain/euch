@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_fonts.dart';
@@ -12,20 +13,24 @@ class TextSettingsSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
+    final theme = Theme.of(context);
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppStrings.textSettings, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            const Text(AppStrings.fontFamily),
+            Text(AppStrings.textSettings, style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),
+            Text(AppStrings.settingsReadingSubtitle, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 20),
             DropdownButtonFormField<String>(
-              initialValue: settings.fontFamily,
+              value: settings.fontFamily,
+              decoration: const InputDecoration(labelText: AppStrings.fontFamily),
               items: [
                 for (final font in AppFonts.available)
                   DropdownMenuItem(value: font, child: Text(font)),
@@ -34,8 +39,8 @@ class TextSettingsSheet extends ConsumerWidget {
                 if (value != null) controller.updateFontFamily(value);
               },
             ),
-            const SizedBox(height: 16),
-            const Text(AppStrings.fontSize),
+            const SizedBox(height: 20),
+            Text(AppStrings.fontSize, style: theme.textTheme.titleMedium),
             Slider(
               value: settings.fontSizeMultiplier,
               min: 0.8,
@@ -45,7 +50,10 @@ class TextSettingsSheet extends ConsumerWidget {
               onChanged: controller.updateFontSize,
             ),
           ],
-        ),
+        )
+            .animate()
+            .fadeIn(duration: 220.ms)
+            .slideY(begin: 0.08, end: 0, duration: 220.ms, curve: Curves.easeOutCubic),
       ),
     );
   }

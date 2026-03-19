@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -82,6 +83,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final items = ref.watch(filteredItemsProvider);
     final tags = ref.watch(allTagsProvider);
     final isAdmin = ref.watch(isAdminLoggedInProvider);
@@ -90,11 +92,23 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 76,
-        title: const Text(
-          AppStrings.appTitle,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.72),
+        surfaceTintColor: Colors.transparent,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppStrings.appTitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleLarge?.copyWith(fontSize: 24),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              AppStrings.itemsCount(items.asData?.value.length ?? 0),
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
         ),
         actions: [
           Padding(
@@ -130,44 +144,48 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
             },
             icon: _FilterIcon(selectedCount: selectedTags.length),
           ),
-          PopupMenuButton<_HomeMenuAction>(
-            onSelected: (action) async {
-              switch (action) {
-                case _HomeMenuAction.settings:
-                  context.push('/settings');
-                  return;
-                case _HomeMenuAction.admin:
-                  context.push('/admin');
-                  return;
-                case _HomeMenuAction.logout:
-                  await ref.read(authRepositoryProvider).signOut();
-                  if (mounted) SnackbarHelper.show(context, AppStrings.logoutSuccess);
-                  return;
-                case _HomeMenuAction.refreshDatabase:
-                  await _syncOffline(showFeedback: true);
-                  return;
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: _HomeMenuAction.settings,
-                child: const Text(AppStrings.settings),
-              ),
-              PopupMenuItem(
-                value: _HomeMenuAction.refreshDatabase,
-                child: const Text(AppStrings.updateDatabase),
-              ),
-              if (isAdmin)
-                PopupMenuItem(
-                  value: _HomeMenuAction.admin,
-                  child: const Text(AppStrings.admin),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: PopupMenuButton<_HomeMenuAction>(
+              position: PopupMenuPosition.under,
+              onSelected: (action) async {
+                switch (action) {
+                  case _HomeMenuAction.settings:
+                    context.push('/settings');
+                    return;
+                  case _HomeMenuAction.admin:
+                    context.push('/admin');
+                    return;
+                  case _HomeMenuAction.logout:
+                    await ref.read(authRepositoryProvider).signOut();
+                    if (mounted) SnackbarHelper.show(context, AppStrings.logoutSuccess);
+                    return;
+                  case _HomeMenuAction.refreshDatabase:
+                    await _syncOffline(showFeedback: true);
+                    return;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: _HomeMenuAction.settings,
+                  child: Text(AppStrings.settings),
                 ),
-              if (isAdmin)
-                PopupMenuItem(
-                  value: _HomeMenuAction.logout,
-                  child: const Text(AppStrings.logout),
+                const PopupMenuItem(
+                  value: _HomeMenuAction.refreshDatabase,
+                  child: Text(AppStrings.updateDatabase),
                 ),
-            ],
+                if (isAdmin)
+                  const PopupMenuItem(
+                    value: _HomeMenuAction.admin,
+                    child: Text(AppStrings.admin),
+                  ),
+                if (isAdmin)
+                  const PopupMenuItem(
+                    value: _HomeMenuAction.logout,
+                    child: Text(AppStrings.logout),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -190,34 +208,42 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
           return RefreshIndicator(
             onRefresh: () => _syncOffline(showFeedback: true),
             child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 96, top: 8),
+              padding: const EdgeInsets.only(bottom: 112, top: 12),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final item = list[index];
                 final isPinned = settings.pinnedIds.contains(item.id);
-                if (settings.viewMode == ItemListViewMode.compact) {
-                  return CompactItemRow(
-                    item: item,
-                    isPinned: isPinned,
-                    isAdmin: isAdmin,
-                    onTap: () => context.push('/item/${item.id}'),
-                    onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
-                    onEdit: () => context.push('/item/edit/${item.id}'),
-                    onDelete: () => _deleteItem(context, item.id),
-                  );
-                }
+                final card = settings.viewMode == ItemListViewMode.compact
+                    ? CompactItemRow(
+                        item: item,
+                        isPinned: isPinned,
+                        isAdmin: isAdmin,
+                        onTap: () => context.push('/item/${item.id}'),
+                        onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
+                        onEdit: () => context.push('/item/edit/${item.id}'),
+                        onDelete: () => _deleteItem(context, item.id),
+                      )
+                    : ItemCard(
+                        item: item,
+                        isPinned: isPinned,
+                        isAdmin: isAdmin,
+                        onTap: () => context.push('/item/${item.id}'),
+                        onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
+                        onEdit: () => context.push('/item/edit/${item.id}'),
+                        onDelete: () => _deleteItem(context, item.id),
+                        editLabel: AppStrings.edit,
+                        deleteLabel: AppStrings.delete,
+                      );
 
-                return ItemCard(
-                  item: item,
-                  isPinned: isPinned,
-                  isAdmin: isAdmin,
-                  onTap: () => context.push('/item/${item.id}'),
-                  onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
-                  onEdit: () => context.push('/item/edit/${item.id}'),
-                  onDelete: () => _deleteItem(context, item.id),
-                  editLabel: AppStrings.edit,
-                  deleteLabel: AppStrings.delete,
-                );
+                final delayMs = (index * 40).clamp(0, 360).toInt();
+
+                return card
+                    .animate()
+                    .fadeIn(
+                      duration: 260.ms,
+                      delay: Duration(milliseconds: delayMs),
+                    )
+                    .slideY(begin: 0.06, end: 0, duration: 260.ms, curve: Curves.easeOutCubic);
               },
             ),
           );
@@ -305,19 +331,27 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
             final sorted = ItemSorter.sort(filtered, pinnedIds);
 
             return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
                 for (final item in sorted)
-                  ListTile(
-                    title: Text(item.title),
-                    subtitle: Text(
-                      item.tags.join(', '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Material(
+                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.86),
+                      borderRadius: BorderRadius.circular(18),
+                      child: ListTile(
+                        title: Text(item.title),
+                        subtitle: Text(
+                          item.tags.join(', '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () {
+                          close(context, null);
+                          context.push('/item/${item.id}');
+                        },
+                      ),
                     ),
-                    onTap: () {
-                      close(context, null);
-                      context.push('/item/${item.id}');
-                    },
                   ),
               ],
             );

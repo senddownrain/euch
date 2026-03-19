@@ -52,6 +52,13 @@ class AppStrings {
   static const cardView = 'Карткі';
   static const compactView = 'Кампактны';
   static const readPreview = 'Прыклад чытання';
+  static const pinned = 'Замацавана';
+  static const previewHeading = 'Ціхі рытм чытання';
+  static const settingsAppearance = 'Агульны выгляд';
+  static const settingsAppearanceSubtitle = 'Спакойныя колеры, лёгкая навігацыя і мінімум візуальнага шуму.';
+  static const settingsReadingSubtitle = 'Шрыфт і маштаб уплываюць на чытанне наўпрост, без абыходных хітрыкаў.';
+  static const settingsPreviewSubtitle = 'Папярэдні прагляд паказвае рэальны стыль тэксту для доўгага чытання.';
+  static const settingsFilterSubtitle = 'Выберыце толькі патрэбныя тэмы, каб захаваць фокус на тэксце.';
   static const about = 'Пра праграму';
   static const aboutBody =
       'Праграма для чытання, пошуку і захавання малітваў і нататак з падтрымкай афлайн-рэжыму і адміністравання.';
