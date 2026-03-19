@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/app_fonts.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/widgets/snackbar_helper.dart';
@@ -38,100 +39,115 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
+    final theme = Theme.of(context);
+    final previewStyle = AppTheme.readingBodyStyle(
+      context,
+      fontFamily: settings.fontFamily,
+      multiplier: settings.fontSizeMultiplier,
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.settings)),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          _SettingsSection(
+            title: AppStrings.settingsAppearance,
+            subtitle: AppStrings.settingsAppearanceSubtitle,
+            child: Column(
+              children: [
+                SegmentedButton<ThemeMode>(
+                  segments: const [
+                    ButtonSegment(value: ThemeMode.system, label: Text(AppStrings.systemTheme)),
+                    ButtonSegment(value: ThemeMode.light, label: Text(AppStrings.lightTheme)),
+                    ButtonSegment(value: ThemeMode.dark, label: Text(AppStrings.darkTheme)),
+                  ],
+                  selected: {settings.themeMode},
+                  onSelectionChanged: (value) => controller.updateThemeMode(value.first),
+                ),
+                const SizedBox(height: 16),
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  value: settings.keepScreenOn,
+                  onChanged: controller.updateKeepScreenOn,
+                  title: const Text(AppStrings.keepScreenOn),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _SettingsSection(
+            title: AppStrings.textSettings,
+            subtitle: AppStrings.settingsReadingSubtitle,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: settings.fontFamily,
+                  decoration: const InputDecoration(labelText: AppStrings.fontFamily),
+                  items: [
+                    for (final font in AppFonts.available)
+                      DropdownMenuItem(value: font, child: Text(font)),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) controller.updateFontFamily(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                Text(AppStrings.fontSize, style: theme.textTheme.titleMedium),
+                Slider(
+                  value: settings.fontSizeMultiplier,
+                  min: 0.8,
+                  max: 1.8,
+                  divisions: 10,
+                  label: settings.fontSizeMultiplier.toStringAsFixed(1),
+                  onChanged: controller.updateFontSize,
+                ),
+                Text(
+                  '${AppStrings.fontSize}: ×${settings.fontSizeMultiplier.toStringAsFixed(1)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: 20),
+                SegmentedButton<ItemListViewMode>(
+                  segments: const [
+                    ButtonSegment(value: ItemListViewMode.cards, label: Text(AppStrings.cardView)),
+                    ButtonSegment(value: ItemListViewMode.compact, label: Text(AppStrings.compactView)),
+                  ],
+                  selected: {settings.viewMode},
+                  onSelectionChanged: (value) => controller.updateViewMode(value.first),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _SettingsSection(
+            title: AppStrings.readPreview,
+            subtitle: AppStrings.settingsPreviewSubtitle,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.24),
+                borderRadius: BorderRadius.circular(22),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppStrings.databaseSectionTitle, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(
-                        _offlineSyncStatus.icon,
-                        color: _offlineSyncStatus.color(context),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(_offlineSyncStatus.label)),
-                    ],
+                  Text(
+                    AppStrings.previewHeading,
+                    style: AppTheme.readingTitleStyle(
+                      context,
+                      fontFamily: settings.fontFamily,
+                      multiplier: settings.fontSizeMultiplier,
+                      scale: 0.82,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: _offlineSyncStatus == _OfflineSyncStatus.syncing ? null : _syncOffline,
-                    icon: const Icon(Icons.cloud_download_outlined),
-                    label: const Text(AppStrings.updateDatabase),
+                  Text(
+                    'Госпадзе, навучы нас маліцца і заставацца ў цішыні Тваёй прысутнасці.',
+                    style: previewStyle,
                   ),
                 ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          SegmentedButton<ThemeMode>(
-            segments: [
-              ButtonSegment(value: ThemeMode.system, label: Text(AppStrings.systemTheme)),
-              ButtonSegment(value: ThemeMode.light, label: Text(AppStrings.lightTheme)),
-              ButtonSegment(value: ThemeMode.dark, label: Text(AppStrings.darkTheme)),
-            ],
-            selected: {settings.themeMode},
-            onSelectionChanged: (value) => controller.updateThemeMode(value.first),
-          ),
-          const SizedBox(height: 20),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            value: settings.keepScreenOn,
-            onChanged: controller.updateKeepScreenOn,
-            title: const Text(AppStrings.keepScreenOn),
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            value: settings.fontFamily,
-            decoration: const InputDecoration(labelText: AppStrings.fontFamily),
-            items: [
-              for (final font in AppFonts.available)
-                DropdownMenuItem(value: font, child: Text(font)),
-            ],
-            onChanged: (value) {
-              if (value != null) controller.updateFontFamily(value);
-            },
-          ),
-          const SizedBox(height: 20),
-          const Text(AppStrings.fontSize),
-          Slider(
-            value: settings.fontSizeMultiplier,
-            min: 0.8,
-            max: 1.8,
-            divisions: 10,
-            label: settings.fontSizeMultiplier.toStringAsFixed(1),
-            onChanged: controller.updateFontSize,
-          ),
-          const SizedBox(height: 12),
-          SegmentedButton<ItemListViewMode>(
-            segments: [
-              ButtonSegment(value: ItemListViewMode.cards, label: Text(AppStrings.cardView)),
-              ButtonSegment(value: ItemListViewMode.compact, label: Text(AppStrings.compactView)),
-            ],
-            selected: {settings.viewMode},
-            onSelectionChanged: (value) => controller.updateViewMode(value.first),
-          ),
-          const SizedBox(height: 24),
-          Text(AppStrings.readPreview, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 12),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Госпадзе, навучы нас маліцца і заставацца ў цішыні Тваёй прысутнасці.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) *
-                          settings.fontSizeMultiplier,
-                    ),
               ),
             ),
           ),
@@ -141,24 +157,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 }
 
-enum _OfflineSyncStatus {
-  idle(Icons.info_outline, AppStrings.offlineStatusIdle),
-  syncing(Icons.cloud_sync_outlined, AppStrings.offlineStatusSyncing),
-  ready(Icons.cloud_done_outlined, AppStrings.offlineStatusReady),
-  error(Icons.cloud_off_outlined, AppStrings.offlineStatusError);
+class _SettingsSection extends StatelessWidget {
+  const _SettingsSection({
+    required this.title,
+    required this.subtitle,
+    required this.child,
+  });
 
-  const _OfflineSyncStatus(this.icon, this.label);
+  final String title;
+  final String subtitle;
+  final Widget child;
 
-  final IconData icon;
-  final String label;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
-  Color color(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      _OfflineSyncStatus.idle => scheme.onSurfaceVariant,
-      _OfflineSyncStatus.syncing => scheme.primary,
-      _OfflineSyncStatus.ready => Colors.green,
-      _OfflineSyncStatus.error => scheme.error,
-    };
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(subtitle, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 20),
+            child,
+          ],
+        ),
+      ),
+    );
   }
 }

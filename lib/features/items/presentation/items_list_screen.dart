@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -69,6 +70,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final items = ref.watch(filteredItemsProvider);
     final tags = ref.watch(allTagsProvider);
     final isAdmin = ref.watch(isAdminLoggedInProvider);
@@ -76,77 +78,101 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
     final selectedTags = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
 
     return Scaffold(
-      key: _scaffoldKey,
-      endDrawer: Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-                child: Text(
-                  AppStrings.appTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.72),
+        surfaceTintColor: Colors.transparent,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppStrings.appTitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleLarge?.copyWith(fontSize: 24),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              AppStrings.itemsCount(items.asData?.value.length ?? 0),
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Tooltip(
+              message: _offlineSyncStatus.label,
+              child: Icon(
+                _offlineSyncStatus.icon,
+                color: _offlineSyncStatus.color(context),
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: AppStrings.search,
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: _ItemsSearchDelegate(AppStrings.searchHint),
+              );
+            },
+            icon: const Icon(Icons.search),
+          ),
+          IconButton(
+            tooltip: AppStrings.filters,
+            onPressed: () {
+              showModalBottomSheet<void>(
+                context: context,
+                showDragHandle: true,
+                builder: (_) => TagFilterSheet(
+                  tags: tags.asData?.value ?? const [],
                 ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings_outlined),
-                title: const Text(AppStrings.settings),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/settings');
-                },
-              ),
-              ExpansionTile(
-                leading: const Icon(Icons.tune_outlined),
-                title: const Text(AppStrings.searchAndFilters),
-                childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-                children: [
-                  ListTile(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    leading: const Icon(Icons.search),
-                    title: const Text(AppStrings.search),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _openSearch();
-                    },
-                  ),
-                  ListTile(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    leading: _FilterIcon(selectedCount: selectedTags.length),
-                    title: const Text(AppStrings.filters),
-                    subtitle: selectedTags.isEmpty
-                        ? const Text(AppStrings.filtersNotSelected)
-                        : Text(AppStrings.filtersSelected(selectedTags.length)),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _openFilters(tags.asData?.value ?? const []);
-                    },
-                  ),
-                ],
-              ),
-              if (isAdmin)
-                ListTile(
-                  leading: const Icon(Icons.admin_panel_settings_outlined),
-                  title: const Text(AppStrings.admin),
-                  onTap: () {
-                    Navigator.of(context).pop();
+              );
+            },
+            icon: _FilterIcon(selectedCount: selectedTags.length),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: PopupMenuButton<_HomeMenuAction>(
+              position: PopupMenuPosition.under,
+              onSelected: (action) async {
+                switch (action) {
+                  case _HomeMenuAction.settings:
+                    context.push('/settings');
+                    return;
+                  case _HomeMenuAction.admin:
                     context.push('/admin');
-                  },
-                ),
-              if (isAdmin)
-                ListTile(
-                  leading: const Icon(Icons.logout_outlined),
-                  title: const Text(AppStrings.logout),
-                  onTap: () async {
-                    Navigator.of(context).pop();
+                    return;
+                  case _HomeMenuAction.logout:
                     await ref.read(authRepositoryProvider).signOut();
                     if (mounted) SnackbarHelper.show(context, AppStrings.logoutSuccess);
-                  },
+                    return;
+                  case _HomeMenuAction.refreshDatabase:
+                    await _syncOffline(showFeedback: true);
+                    return;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: _HomeMenuAction.settings,
+                  child: Text(AppStrings.settings),
                 ),
-            ],
+                const PopupMenuItem(
+                  value: _HomeMenuAction.refreshDatabase,
+                  child: Text(AppStrings.updateDatabase),
+                ),
+                if (isAdmin)
+                  const PopupMenuItem(
+                    value: _HomeMenuAction.admin,
+                    child: Text(AppStrings.admin),
+                  ),
+                if (isAdmin)
+                  const PopupMenuItem(
+                    value: _HomeMenuAction.logout,
+                    child: Text(AppStrings.logout),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -181,36 +207,47 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.only(bottom: 96, top: 12),
-            itemCount: list.length,
-            itemBuilder: (context, index) {
-              final item = list[index];
-              final isPinned = settings.pinnedIds.contains(item.id);
-              if (settings.viewMode == ItemListViewMode.compact) {
-                return CompactItemRow(
-                  item: item,
-                  isPinned: isPinned,
-                  isAdmin: isAdmin,
-                  onTap: () => context.push('/item/${item.id}'),
-                  onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
-                  onEdit: () => context.push('/item/edit/${item.id}'),
-                  onDelete: () => _deleteItem(context, item.id),
-                );
-              }
+          return RefreshIndicator(
+            onRefresh: () => _syncOffline(showFeedback: true),
+            child: ListView.builder(
+              padding: const EdgeInsets.only(bottom: 112, top: 12),
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                final item = list[index];
+                final isPinned = settings.pinnedIds.contains(item.id);
+                final card = settings.viewMode == ItemListViewMode.compact
+                    ? CompactItemRow(
+                        item: item,
+                        isPinned: isPinned,
+                        isAdmin: isAdmin,
+                        onTap: () => context.push('/item/${item.id}'),
+                        onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
+                        onEdit: () => context.push('/item/edit/${item.id}'),
+                        onDelete: () => _deleteItem(context, item.id),
+                      )
+                    : ItemCard(
+                        item: item,
+                        isPinned: isPinned,
+                        isAdmin: isAdmin,
+                        onTap: () => context.push('/item/${item.id}'),
+                        onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
+                        onEdit: () => context.push('/item/edit/${item.id}'),
+                        onDelete: () => _deleteItem(context, item.id),
+                        editLabel: AppStrings.edit,
+                        deleteLabel: AppStrings.delete,
+                      );
 
-              return ItemCard(
-                item: item,
-                isPinned: isPinned,
-                isAdmin: isAdmin,
-                onTap: () => context.push('/item/${item.id}'),
-                onTogglePin: () => ref.read(settingsControllerProvider.notifier).togglePin(item.id),
-                onEdit: () => context.push('/item/edit/${item.id}'),
-                onDelete: () => _deleteItem(context, item.id),
-                editLabel: AppStrings.edit,
-                deleteLabel: AppStrings.delete,
-              );
-            },
+                final delayMs = (index * 40).clamp(0, 360).toInt();
+
+                return card
+                    .animate()
+                    .fadeIn(
+                      duration: 260.ms,
+                      delay: Duration(milliseconds: delayMs),
+                    )
+                    .slideY(begin: 0.06, end: 0, duration: 260.ms, curve: Curves.easeOutCubic);
+              },
+            ),
           );
         },
         error: (_, __) => const Center(child: Text(AppStrings.genericError)),
@@ -274,19 +311,27 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
             final sorted = ItemSorter.sort(filtered, pinnedIds);
 
             return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
                 for (final item in sorted)
-                  ListTile(
-                    title: Text(item.title),
-                    subtitle: Text(
-                      item.tags.join(', '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Material(
+                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.86),
+                      borderRadius: BorderRadius.circular(18),
+                      child: ListTile(
+                        title: Text(item.title),
+                        subtitle: Text(
+                          item.tags.join(', '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () {
+                          close(context, null);
+                          context.push('/item/${item.id}');
+                        },
+                      ),
                     ),
-                    onTap: () {
-                      close(context, null);
-                      context.push('/item/${item.id}');
-                    },
                   ),
               ],
             );
