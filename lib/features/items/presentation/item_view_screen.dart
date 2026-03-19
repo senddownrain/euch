@@ -60,7 +60,7 @@ class ItemViewScreen extends ConsumerWidget {
                 backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.76),
                 surfaceTintColor: Colors.transparent,
                 title: Text(
-                  item.title,
+                  AppStrings.appTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleLarge?.copyWith(fontSize: 22),
