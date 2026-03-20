@@ -9,12 +9,17 @@ class AppLogo extends StatelessWidget {
     this.borderColor,
   });
 
-  static const assetPath = 'lib/assets/icon.png';
+  static const _lightAssetPath = 'lib/assets/logo_light.png';
+  static const _darkAssetPath = 'lib/assets/logo_dark.png';
 
   final double size;
   final EdgeInsetsGeometry padding;
   final Color? backgroundColor;
   final Color? borderColor;
+
+  static String assetPathForTheme(Brightness brightness) {
+    return brightness == Brightness.dark ? _darkAssetPath : _lightAssetPath;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,7 @@ class AppLogo extends StatelessWidget {
       child: Padding(
         padding: padding,
         child: Image.asset(
-          assetPath,
+          assetPathForTheme(theme.brightness),
           width: size,
           height: size,
           fit: BoxFit.contain,
