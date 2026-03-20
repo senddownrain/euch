@@ -36,20 +36,27 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: lib/assets/icon.png
+  image_path: lib/assets/logo_light.png
   remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: lib/assets/icon.png
+  color_dark: "#121212"
+  image: lib/assets/splash_light.png
+  image_dark: lib/assets/splash_dark.png
   android: true
   ios: true
   android_12:
     color: "#FFFFFF"
-    image: lib/assets/icon.png
+    color_dark: "#121212"
+    image: lib/assets/splash_light.png
+    image_dark: lib/assets/splash_dark.png
+    icon_background_color: "#FFFFFF"
+    icon_background_color_dark: "#121212"
 
 flutter:
   uses-material-design: true
   generate: true
   assets:
-    - lib/assets/icon.png
+    - lib/assets/
