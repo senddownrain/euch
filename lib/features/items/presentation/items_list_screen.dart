@@ -147,7 +147,11 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                 const PopupMenuDivider(),
                 const PopupMenuItem(
                   value: _HomeMenuAction.settings,
-                  child: Text(AppStrings.settings),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.settings_outlined),
+                    title: Text(AppStrings.settings),
+                  ),
                 ),
                 if (isAdmin)
                   const PopupMenuItem(
