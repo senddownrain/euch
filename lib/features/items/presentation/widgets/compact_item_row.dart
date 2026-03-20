@@ -46,17 +46,6 @@ class CompactItemRow extends StatelessWidget {
             item.title,
             style: theme.textTheme.titleMedium?.copyWith(height: 1.18),
           ),
-          subtitle: item.tags.isEmpty
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    item.tags.join(' • '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
           trailing: Wrap(
             spacing: 0,
             children: [

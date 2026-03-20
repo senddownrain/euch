@@ -18,7 +18,7 @@ class ItemSorter {
     int byDate(Item a, Item b) {
       final left = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
       final right = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-      return right.compareTo(left);
+      return left.compareTo(right);
     }
 
     pinned.sort(byDate);
