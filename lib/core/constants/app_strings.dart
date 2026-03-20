@@ -64,6 +64,7 @@ class AppStrings {
   static const settingsAppearanceSubtitle = 'Спакойныя колеры, лёгкая навігацыя і мінімум візуальнага шуму.';
   static const settingsReadingSubtitle = 'Шрыфт і маштаб уплываюць на чытанне наўпрост, без абыходных хітрыкаў.';
   static const settingsFilterSubtitle = 'Выберыце толькі патрэбныя тэмы, каб захаваць фокус на тэксце.';
+  static const settingsPreviewSubtitle = 'Паглядзіце, як абраныя налады ўплываюць на чытанне малітоўнага тэксту.';
   static const about = 'Пра праграму';
   static const aboutBody =
       'Праграма для чытання, пошуку і захавання малітваў і нататак з падтрымкай афлайн-рэжыму і адміністравання.';
