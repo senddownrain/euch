@@ -29,7 +29,7 @@ class ItemsListScreen extends ConsumerStatefulWidget {
   ConsumerState<ItemsListScreen> createState() => _ItemsListScreenState();
 }
 
-enum _HomeMenuAction { settings, refreshDatabase, admin, logout }
+enum _HomeMenuAction { settings, admin, logout }
 
 class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
   OfflineSyncStatus _offlineSyncStatus = OfflineSyncStatus.idle;
@@ -140,9 +140,6 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                   case _HomeMenuAction.settings:
                     if (mounted) context.push('/settings');
                     return;
-                  case _HomeMenuAction.refreshDatabase:
-                    await _syncOffline(showFeedback: true);
-                    return;
                   case _HomeMenuAction.admin:
                     if (mounted) context.push('/admin');
                     return;
@@ -158,10 +155,6 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                 const PopupMenuItem(
                   value: _HomeMenuAction.settings,
                   child: Text(AppStrings.settings),
-                ),
-                const PopupMenuItem(
-                  value: _HomeMenuAction.refreshDatabase,
-                  child: Text(AppStrings.updateDatabase),
                 ),
                 if (isAdmin)
                   const PopupMenuItem(
