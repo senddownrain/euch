@@ -125,6 +125,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   selected: {settings.viewMode},
                   onSelectionChanged: (value) => controller.updateViewMode(value.first),
                 ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.18)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppStrings.previewHeading,
+                        style: AppTheme.readingTitleStyle(
+                          context,
+                          fontFamily: settings.fontFamily,
+                          multiplier: settings.fontSizeMultiplier,
+                          scale: 0.8,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        AppStrings.previewBody,
+                        style: previewStyle,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -164,39 +193,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   label: const Text(AppStrings.updateDatabase),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsSection(
-            title: AppStrings.readPreview,
-            subtitle: AppStrings.settingsPreviewSubtitle,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.18)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppStrings.previewHeading,
-                    style: AppTheme.readingTitleStyle(
-                      context,
-                      fontFamily: settings.fontFamily,
-                      multiplier: settings.fontSizeMultiplier,
-                      scale: 0.8,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Госпадзе, навучы нас маліцца і заставацца ў цішыні Тваёй прысутнасці.',
-                    style: previewStyle,
-                  ),
-                ],
-              ),
             ),
           ),
         ],

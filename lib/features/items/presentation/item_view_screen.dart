@@ -61,11 +61,10 @@ class ItemViewScreen extends ConsumerWidget {
                 backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.78),
                 surfaceTintColor: Colors.transparent,
                 titleSpacing: 16,
-                title: Text(
-                  item.title,
+                title: const Text(
+                  AppStrings.appTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
                 ),
                 actions: [
                   IconButton(
@@ -116,46 +115,12 @@ class ItemViewScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  AppLogo(
-                                    size: 22,
-                                    padding: const EdgeInsets.all(5),
-                                    backgroundColor: scheme.primaryContainer.withValues(alpha: 0.3),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      AppStrings.appTitle,
-                                      style: theme.textTheme.labelMedium?.copyWith(
-                                        color: scheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
                               Text(
                                 item.title,
                                 style: headingStyle.copyWith(
                                   fontSize: headingStyle.fontSize! * 1.02,
                                 ),
                               ),
-                              if (item.tags.isNotEmpty) ...[
-                                const SizedBox(height: 14),
-                                Wrap(
-                                  spacing: 6,
-                                  runSpacing: 6,
-                                  children: [
-                                    for (final tag in item.tags)
-                                      Chip(
-                                        label: Text(tag),
-                                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                        visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-                                      ),
-                                  ],
-                                ),
-                              ],
                               const SizedBox(height: 18),
                               Html(
                                 data: HtmlUtils.sanitize(item.text),
@@ -226,6 +191,21 @@ class ItemViewScreen extends ConsumerWidget {
                                   ),
                                 },
                               ),
+                              if (item.tags.isNotEmpty) ...[
+                                const SizedBox(height: 20),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  children: [
+                                    for (final tag in item.tags)
+                                      Chip(
+                                        label: Text(tag),
+                                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                                      ),
+                                  ],
+                                ),
+                              ],
                               const SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
