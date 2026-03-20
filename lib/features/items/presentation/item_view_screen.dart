@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/html_utils.dart';
+import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../auth/presentation/providers.dart';
@@ -56,14 +57,15 @@ class ItemViewScreen extends ConsumerWidget {
               SliverAppBar(
                 pinned: true,
                 floating: true,
-                expandedHeight: 96,
-                backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.76),
+                expandedHeight: 84,
+                backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.78),
                 surfaceTintColor: Colors.transparent,
+                titleSpacing: 16,
                 title: Text(
-                  AppStrings.appTitle,
-                  maxLines: 2,
+                  item.title,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 22),
+                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
                 ),
                 actions: [
                   IconButton(
@@ -89,48 +91,79 @@ class ItemViewScreen extends ConsumerWidget {
                 ],
               ),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
                 sliver: SliverToBoxAdapter(
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 760),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: scheme.surface.withValues(alpha: 0.82),
-                          borderRadius: BorderRadius.circular(28),
+                          color: scheme.surface.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(26),
                           border: Border.all(
-                            color: scheme.outlineVariant.withValues(alpha: 0.28),
+                            color: scheme.outlineVariant.withValues(alpha: 0.24),
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: scheme.shadow.withValues(alpha: 0.03),
+                              blurRadius: 18,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Row(
+                                children: [
+                                  AppLogo(
+                                    size: 22,
+                                    padding: const EdgeInsets.all(5),
+                                    backgroundColor: scheme.primaryContainer.withValues(alpha: 0.3),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      AppStrings.appTitle,
+                                      style: theme.textTheme.labelMedium?.copyWith(
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
                               Text(
                                 item.title,
                                 style: headingStyle.copyWith(
-                                  fontSize: headingStyle.fontSize! * 1.08,
+                                  fontSize: headingStyle.fontSize! * 1.02,
                                 ),
                               ),
                               if (item.tags.isNotEmpty) ...[
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 14),
                                 Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
+                                  spacing: 6,
+                                  runSpacing: 6,
                                   children: [
-                                    for (final tag in item.tags) Chip(label: Text(tag)),
+                                    for (final tag in item.tags)
+                                      Chip(
+                                        label: Text(tag),
+                                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                                      ),
                                   ],
                                 ),
                               ],
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 18),
                               Html(
                                 data: HtmlUtils.sanitize(item.text),
                                 style: {
                                   'body': Style(
                                     fontFamily: bodyTextStyle.fontFamily,
                                     fontSize: FontSize(bodyTextStyle.fontSize ?? 18),
-                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.72),
+                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.74),
                                     letterSpacing: bodyTextStyle.letterSpacing,
                                     color: bodyTextStyle.color,
                                     margin: Margins.zero,
@@ -139,66 +172,75 @@ class ItemViewScreen extends ConsumerWidget {
                                   'p': Style(
                                     fontFamily: bodyTextStyle.fontFamily,
                                     fontSize: FontSize(bodyTextStyle.fontSize ?? 18),
-                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.72),
+                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.74),
                                     letterSpacing: bodyTextStyle.letterSpacing,
                                     color: bodyTextStyle.color,
-                                    margin: Margins.only(bottom: 20),
+                                    margin: Margins.only(bottom: 16),
                                     padding: HtmlPaddings.zero,
                                   ),
                                   'h1': Style(
                                     fontFamily: headingStyle.fontFamily,
-                                    fontSize: FontSize((headingStyle.fontSize ?? 30) * 1.18),
+                                    fontSize: FontSize((headingStyle.fontSize ?? 30) * 1.12),
                                     fontWeight: FontWeight.w600,
-                                    lineHeight: const LineHeight(1.26),
+                                    lineHeight: const LineHeight(1.22),
                                     color: headingStyle.color,
-                                    margin: Margins.only(top: 28, bottom: 16),
+                                    margin: Margins.only(top: 24, bottom: 12),
                                   ),
                                   'h2': Style(
                                     fontFamily: headingStyle.fontFamily,
-                                    fontSize: FontSize((headingStyle.fontSize ?? 28) * 1.04),
+                                    fontSize: FontSize((headingStyle.fontSize ?? 28) * 1.0),
                                     fontWeight: FontWeight.w600,
-                                    lineHeight: const LineHeight(1.28),
+                                    lineHeight: const LineHeight(1.24),
                                     color: headingStyle.color,
-                                    margin: Margins.only(top: 26, bottom: 14),
+                                    margin: Margins.only(top: 22, bottom: 10),
                                   ),
                                   'h3': Style(
                                     fontFamily: headingStyle.fontFamily,
-                                    fontSize: FontSize((headingStyle.fontSize ?? 24) * 0.92),
+                                    fontSize: FontSize((headingStyle.fontSize ?? 24) * 0.9),
                                     fontWeight: FontWeight.w600,
-                                    lineHeight: const LineHeight(1.3),
+                                    lineHeight: const LineHeight(1.28),
                                     color: headingStyle.color,
-                                    margin: Margins.only(top: 22, bottom: 12),
+                                    margin: Margins.only(top: 18, bottom: 10),
                                   ),
                                   'li': Style(
                                     fontFamily: bodyTextStyle.fontFamily,
                                     fontSize: FontSize(bodyTextStyle.fontSize ?? 18),
-                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.72),
-                                    margin: Margins.only(bottom: 12),
+                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.74),
+                                    margin: Margins.only(bottom: 8),
                                     color: bodyTextStyle.color,
                                   ),
                                   'blockquote': Style(
                                     fontFamily: bodyTextStyle.fontFamily,
                                     fontSize: FontSize((bodyTextStyle.fontSize ?? 18) * 0.98),
-                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.72),
+                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.74),
                                     color: scheme.onSurfaceVariant,
-                                    backgroundColor: scheme.surfaceContainerHighest.withValues(alpha: 0.26),
-                                    padding: HtmlPaddings.all(16),
-                                    margin: Margins.only(top: 18, bottom: 18),
+                                    backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.22),
+                                    padding: HtmlPaddings.all(14),
+                                    margin: Margins.only(top: 14, bottom: 14),
                                   ),
                                   'span': Style(
                                     fontFamily: bodyTextStyle.fontFamily,
                                     fontSize: FontSize(bodyTextStyle.fontSize ?? 18),
-                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.72),
+                                    lineHeight: LineHeight(bodyTextStyle.height ?? 1.74),
                                     color: bodyTextStyle.color,
                                   ),
                                 },
                               ),
-                              const SizedBox(height: 32),
-                              Center(
-                                child: Text(
-                                  AppStrings.appTitle,
-                                  style: theme.textTheme.labelMedium,
-                                ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AppLogo(
+                                    size: 14,
+                                    padding: const EdgeInsets.all(4),
+                                    backgroundColor: scheme.surfaceContainerHighest.withValues(alpha: 0.26),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    AppStrings.appTitle,
+                                    style: theme.textTheme.labelMedium,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -208,7 +250,7 @@ class ItemViewScreen extends ConsumerWidget {
                   )
                       .animate()
                       .fadeIn(duration: 280.ms, curve: Curves.easeOut)
-                      .move(begin: const Offset(0, 12), end: Offset.zero, duration: 280.ms),
+                      .move(begin: const Offset(0, 10), end: Offset.zero, duration: 280.ms),
                 ),
               ),
             ],

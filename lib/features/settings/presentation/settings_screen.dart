@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/app_fonts.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/widgets/brand_app_bar_title.dart';
 import '../../../core/widgets/snackbar_helper.dart';
 import '../../items/data/items_repository.dart';
 import '../../items/presentation/offline_sync_status.dart';
@@ -41,6 +42,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final settings = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final previewStyle = AppTheme.readingBodyStyle(
       context,
       fontFamily: settings.fontFamily,
@@ -48,9 +50,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.settings)),
+      appBar: AppBar(
+        title: const BrandAppBarTitle(
+          compact: true,
+          subtitle: AppStrings.settings,
+        ),
+      ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
         children: [
           _SettingsSection(
             title: AppStrings.settingsAppearance,
@@ -66,9 +73,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   selected: {settings.themeMode},
                   onSelectionChanged: (value) => controller.updateThemeMode(value.first),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
                 SwitchListTile.adaptive(
                   contentPadding: EdgeInsets.zero,
+                  dense: true,
                   value: settings.keepScreenOn,
                   onChanged: controller.updateKeepScreenOn,
                   title: const Text(AppStrings.keepScreenOn),
@@ -76,7 +84,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _SettingsSection(
             title: AppStrings.textSettings,
             subtitle: AppStrings.settingsReadingSubtitle,
@@ -94,7 +102,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     if (value != null) controller.updateFontFamily(value);
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 Text(AppStrings.fontSize, style: theme.textTheme.titleMedium),
                 Slider(
                   value: settings.fontSizeMultiplier,
@@ -108,34 +116,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   '${AppStrings.fontSize}: ×${settings.fontSizeMultiplier.toStringAsFixed(1)}',
                   style: theme.textTheme.bodySmall,
                 ),
-                const SizedBox(height: 20),
-                Text(AppStrings.readPreview, style: theme.textTheme.titleMedium),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.24),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppStrings.previewHeading,
-                        style: AppTheme.readingTitleStyle(
-                          context,
-                          fontFamily: settings.fontFamily,
-                          multiplier: settings.fontSizeMultiplier,
-                          scale: 0.82,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(AppStrings.previewBody, style: previewStyle),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 SegmentedButton<ItemListViewMode>(
                   segments: const [
                     ButtonSegment(value: ItemListViewMode.cards, label: Text(AppStrings.cardView)),
@@ -147,35 +128,75 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _SettingsSection(
             title: AppStrings.databaseSectionTitle,
             subtitle: AppStrings.databaseSectionSubtitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      _offlineSyncStatus.icon,
-                      color: _offlineSyncStatus.color(context),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _offlineSyncStatus.label,
-                        style: theme.textTheme.bodyMedium,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _offlineSyncStatus.icon,
+                        color: _offlineSyncStatus.color(context),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _offlineSyncStatus.label,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
                 FilledButton.icon(
                   onPressed: _offlineSyncStatus == OfflineSyncStatus.syncing ? null : _syncOffline,
                   icon: const Icon(Icons.download_for_offline_outlined),
                   label: const Text(AppStrings.updateDatabase),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SettingsSection(
+            title: AppStrings.readPreview,
+            subtitle: AppStrings.settingsPreviewSubtitle,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.18)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.previewHeading,
+                    style: AppTheme.readingTitleStyle(
+                      context,
+                      fontFamily: settings.fontFamily,
+                      multiplier: settings.fontSizeMultiplier,
+                      scale: 0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Госпадзе, навучы нас маліцца і заставацца ў цішыні Тваёй прысутнасці.',
+                    style: previewStyle,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -198,17 +219,21 @@ class _SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Text(subtitle, style: theme.textTheme.bodySmall),
-            const SizedBox(height: 20),
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
             child,
           ],
         ),

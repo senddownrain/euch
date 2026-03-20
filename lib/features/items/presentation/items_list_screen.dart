@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/html_utils.dart';
 import '../../../core/utils/item_sorter.dart';
+import '../../../core/widgets/brand_app_bar_title.dart';
 import '../../../core/widgets/confirmation_dialog.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/loading_indicator.dart';
@@ -103,14 +104,10 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.72),
+        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.78),
         surfaceTintColor: Colors.transparent,
-        toolbarHeight: 76,
-        title: Text(
-          AppStrings.appTitle,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleLarge?.copyWith(fontSize: 24),
+        title: BrandAppBarTitle(
+          subtitle: AppStrings.itemsCount(items.asData?.value.length ?? 0),
         ),
         actions: [
           Padding(
@@ -190,7 +187,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: const [
-                  SizedBox(height: 120),
+                  SizedBox(height: 84),
                   EmptyState(
                     title: AppStrings.emptyItemsTitle,
                     subtitle: AppStrings.emptyItemsSubtitle,
@@ -203,7 +200,7 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
           return RefreshIndicator(
             onRefresh: () => _syncOffline(showFeedback: true),
             child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 112, top: 12),
+              padding: const EdgeInsets.only(bottom: 104, top: 8),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final item = list[index];

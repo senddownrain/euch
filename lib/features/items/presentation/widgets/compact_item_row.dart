@@ -28,24 +28,28 @@ class CompactItemRow extends StatelessWidget {
     final scheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
       child: Material(
         color: isPinned
-            ? scheme.primaryContainer.withValues(alpha: 0.28)
-            : scheme.surface.withValues(alpha: 0.86),
-        borderRadius: BorderRadius.circular(18),
+            ? scheme.secondaryContainer.withValues(alpha: 0.34)
+            : scheme.surface.withValues(alpha: 0.9),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.2)),
+        ),
         child: ListTile(
           onTap: onTap,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+          minTileHeight: 62,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
           title: Text(
             item.title,
-            style: theme.textTheme.titleMedium?.copyWith(height: 1.2),
+            style: theme.textTheme.titleMedium?.copyWith(height: 1.18),
           ),
           subtitle: item.tags.isEmpty
               ? null
               : Padding(
-                  padding: const EdgeInsets.only(top: 6),
+                  padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     item.tags.join(' • '),
                     maxLines: 1,
@@ -54,15 +58,24 @@ class CompactItemRow extends StatelessWidget {
                   ),
                 ),
           trailing: Wrap(
-            spacing: 2,
+            spacing: 0,
             children: [
               IconButton(
                 onPressed: onTogglePin,
-                icon: Icon(isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+                visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                icon: Icon(isPinned ? Icons.push_pin : Icons.push_pin_outlined, size: 19),
               ),
               if (isAdmin) ...[
-                IconButton(onPressed: onEdit, icon: const Icon(Icons.edit_outlined)),
-                IconButton(onPressed: onDelete, icon: const Icon(Icons.delete_outline)),
+                IconButton(
+                  onPressed: onEdit,
+                  visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                  icon: const Icon(Icons.edit_outlined, size: 19),
+                ),
+                IconButton(
+                  onPressed: onDelete,
+                  visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                  icon: const Icon(Icons.delete_outline, size: 19),
+                ),
               ],
             ],
           ),
