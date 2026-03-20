@@ -17,7 +17,6 @@ import '../../settings/domain/app_settings.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../data/items_repository.dart';
 import 'items_controller.dart';
-import 'offline_sync_status.dart';
 import 'widgets/compact_item_row.dart';
 import 'widgets/item_card.dart';
 import 'widgets/tag_filter_sheet.dart';
@@ -29,11 +28,9 @@ class ItemsListScreen extends ConsumerStatefulWidget {
   ConsumerState<ItemsListScreen> createState() => _ItemsListScreenState();
 }
 
-enum _HomeMenuAction { settings, admin, logout }
+enum _HomeMenuAction { search, filters, settings, admin, logout }
 
 class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
-  OfflineSyncStatus _offlineSyncStatus = OfflineSyncStatus.idle;
-
   Future<void> _deleteItem(BuildContext context, String id) async {
     final confirmed = await showConfirmationDialog(
       context: context,
@@ -58,20 +55,14 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
   }
 
   Future<void> _syncOffline({bool showFeedback = false}) async {
-    if (mounted) {
-      setState(() => _offlineSyncStatus = OfflineSyncStatus.syncing);
-    }
-
     try {
       await ref.read(itemsRepositoryProvider).prefetchAll();
       if (!mounted) return;
-      setState(() => _offlineSyncStatus = OfflineSyncStatus.ready);
       if (showFeedback) {
         SnackbarHelper.show(context, AppStrings.offlineReady);
       }
     } catch (_) {
       if (!mounted) return;
-      setState(() => _offlineSyncStatus = OfflineSyncStatus.error);
       if (showFeedback) {
         SnackbarHelper.show(context, AppStrings.networkUnavailable, isError: true);
       }
@@ -101,35 +92,14 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
     final isAdmin = ref.watch(isAdminLoggedInProvider);
     final settings = ref.watch(settingsControllerProvider);
     final selectedTags = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
+    final availableTags = tags.asData?.value ?? const <String>[];
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.78),
         surfaceTintColor: Colors.transparent,
-        title: BrandAppBarTitle(
-          subtitle: AppStrings.itemsCount(items.asData?.value.length ?? 0),
-        ),
+        title: const BrandAppBarTitle(),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Tooltip(
-              message: _offlineSyncStatus.label,
-              child: Icon(
-                _offlineSyncStatus.icon,
-                color: _offlineSyncStatus.color(context),
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: AppStrings.search,
-            onPressed: _openSearch,
-            icon: const Icon(Icons.search),
-          ),
-          IconButton(
-            tooltip: AppStrings.filters,
-            onPressed: () => _openFilters(tags.asData?.value ?? const []),
-            icon: _FilterIcon(selectedCount: selectedTags.length),
-          ),
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: PopupMenuButton<_HomeMenuAction>(
@@ -137,6 +107,12 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
               position: PopupMenuPosition.under,
               onSelected: (action) async {
                 switch (action) {
+                  case _HomeMenuAction.search:
+                    _openSearch();
+                    return;
+                  case _HomeMenuAction.filters:
+                    _openFilters(availableTags);
+                    return;
                   case _HomeMenuAction.settings:
                     if (mounted) context.push('/settings');
                     return;
@@ -152,6 +128,23 @@ class _ItemsListScreenState extends ConsumerState<ItemsListScreen> {
                 }
               },
               itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: _HomeMenuAction.search,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.search),
+                    title: Text(AppStrings.search),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _HomeMenuAction.filters,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: _FilterIcon(selectedCount: selectedTags.length),
+                    title: const Text(AppStrings.filters),
+                  ),
+                ),
+                const PopupMenuDivider(),
                 const PopupMenuItem(
                   value: _HomeMenuAction.settings,
                   child: Text(AppStrings.settings),
@@ -311,11 +304,6 @@ class _ItemsSearchDelegate extends SearchDelegate<void> {
                       borderRadius: BorderRadius.circular(18),
                       child: ListTile(
                         title: Text(item.title),
-                        subtitle: Text(
-                          item.tags.join(', '),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
                         onTap: () {
                           close(context, null);
                           context.push('/item/${item.id}');
