@@ -28,7 +28,7 @@ class AboutScreen extends StatelessWidget {
               children: [
                 AppLogo(
                   size: 34,
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(0),
                   backgroundColor: scheme.primaryContainer.withValues(alpha: 0.34),
                 ),
                 const SizedBox(width: 14),

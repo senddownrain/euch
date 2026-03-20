@@ -49,7 +49,7 @@ class EmptyState extends StatelessWidget {
                       offset: const Offset(26, 26),
                       child: AppLogo(
                         size: 18,
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(0),
                         backgroundColor: scheme.surface,
                       ),
                     ),

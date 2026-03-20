@@ -32,7 +32,7 @@ class TagFilterSheet extends ConsumerWidget {
               children: [
                 AppLogo(
                   size: 18,
-                  padding: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(0),
                   backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.34),
                 ),
                 const SizedBox(width: 10),

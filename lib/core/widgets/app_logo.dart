@@ -4,7 +4,7 @@ class AppLogo extends StatelessWidget {
   const AppLogo({
     super.key,
     this.size = 40,
-    this.padding = const EdgeInsets.all(8),
+    this.padding = const EdgeInsets.all(0),
     this.backgroundColor,
     this.borderColor,
   });

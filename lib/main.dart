@@ -58,7 +58,7 @@ class UnsupportedPlatformApp extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
-                AppLogo(size: 80, padding: EdgeInsets.all(10)),
+                AppLogo(size: 80, padding: EdgeInsets.all(0)),
                 SizedBox(height: 24),
                 Icon(Icons.phone_android, size: 56),
                 SizedBox(height: 16),
