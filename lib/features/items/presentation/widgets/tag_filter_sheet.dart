@@ -36,16 +36,7 @@ class TagFilterSheet extends ConsumerWidget {
                   backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.34),
                 ),
                 const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(AppStrings.tagFilterTitle, style: theme.textTheme.titleLarge),
-                      const SizedBox(height: 2),
-                      Text(AppStrings.settingsFilterSubtitle, style: theme.textTheme.bodySmall),
-                    ],
-                  ),
-                ),
+                Expanded(child: Text(AppStrings.tagFilterTitle, style: theme.textTheme.titleLarge)),
               ],
             ),
             const SizedBox(height: 16),

@@ -33,16 +33,7 @@ class TextSettingsSheet extends ConsumerWidget {
                   backgroundColor: scheme.primaryContainer.withValues(alpha: 0.34),
                 ),
                 const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(AppStrings.textSettings, style: theme.textTheme.titleLarge),
-                      const SizedBox(height: 2),
-                      Text(AppStrings.settingsReadingSubtitle, style: theme.textTheme.bodySmall),
-                    ],
-                  ),
-                ),
+                Expanded(child: Text(AppStrings.textSettings, style: theme.textTheme.titleLarge)),
               ],
             ),
             const SizedBox(height: 16),

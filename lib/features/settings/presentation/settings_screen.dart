@@ -51,17 +51,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const BrandAppBarTitle(
-          compact: true,
-          subtitle: AppStrings.settings,
-        ),
+        title: const BrandAppBarTitle(compact: true),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
         children: [
           _SettingsSection(
             title: AppStrings.settingsAppearance,
-            subtitle: AppStrings.settingsAppearanceSubtitle,
             child: Column(
               children: [
                 SegmentedButton<ThemeMode>(
@@ -87,7 +83,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 12),
           _SettingsSection(
             title: AppStrings.textSettings,
-            subtitle: AppStrings.settingsReadingSubtitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -160,7 +155,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 12),
           _SettingsSection(
             title: AppStrings.databaseSectionTitle,
-            subtitle: AppStrings.databaseSectionSubtitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -204,18 +198,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 class _SettingsSection extends StatelessWidget {
   const _SettingsSection({
     required this.title,
-    required this.subtitle,
     required this.child,
   });
 
   final String title;
-  final String subtitle;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
 
     return Card(
       child: Padding(
@@ -224,11 +215,6 @@ class _SettingsSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-            ),
             const SizedBox(height: 16),
             child,
           ],
