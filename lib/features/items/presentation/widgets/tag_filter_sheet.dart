@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../items_controller.dart';
 
 class TagFilterSheet extends ConsumerWidget {
@@ -17,37 +18,63 @@ class TagFilterSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(itemFiltersProvider.select((value) => value.selectedTags));
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(24, 12, 24, 28 + bottomInset),
+        padding: EdgeInsets.fromLTRB(20, 8, 20, 22 + bottomInset),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppStrings.tagFilterTitle, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Text(AppStrings.settingsFilterSubtitle, style: theme.textTheme.bodySmall),
-            const SizedBox(height: 20),
-            const Divider(),
-            const SizedBox(height: 20),
-            if (tags.isEmpty)
-              const Text(AppStrings.noTags)
-            else
-              Wrap(
-                spacing: 8,
-                runSpacing: 10,
-                children: [
-                  for (final tag in tags)
-                    FilterChip(
-                      selected: selected.contains(tag),
-                      label: Text(tag),
-                      onSelected: (_) => ref.read(itemFiltersProvider.notifier).toggleTag(tag),
-                    ),
-                ],
+            Row(
+              children: [
+                AppLogo(
+                  size: 18,
+                  padding: const EdgeInsets.all(5),
+                  backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.34),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(AppStrings.tagFilterTitle, style: theme.textTheme.titleLarge),
+                      const SizedBox(height: 2),
+                      Text(AppStrings.settingsFilterSubtitle, style: theme.textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.2)),
               ),
-            const SizedBox(height: 24),
+              child: tags.isEmpty
+                  ? const Text(AppStrings.noTags)
+                  : Wrap(
+                      spacing: 6,
+                      runSpacing: 8,
+                      children: [
+                        for (final tag in tags)
+                          FilterChip(
+                            selected: selected.contains(tag),
+                            label: Text(tag),
+                            visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            onSelected: (_) => ref.read(itemFiltersProvider.notifier).toggleTag(tag),
+                          ),
+                      ],
+                    ),
+            ),
+            const SizedBox(height: 18),
             Row(
               children: [
                 OutlinedButton(
@@ -65,7 +92,7 @@ class TagFilterSheet extends ConsumerWidget {
         )
             .animate()
             .fadeIn(duration: 220.ms)
-            .slideY(begin: 0.08, end: 0, duration: 220.ms, curve: Curves.easeOutCubic),
+            .slideY(begin: 0.06, end: 0, duration: 220.ms, curve: Curves.easeOutCubic),
       ),
     );
   }
